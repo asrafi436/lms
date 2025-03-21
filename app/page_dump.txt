@@ -1,0 +1,40 @@
+'use client'
+import Text from "@/components/Text"
+import React, { useEffect, useState } from 'react'
+
+export default function Home() {
+  const [users, setUsers] = useState([])
+
+  useEffect(() => {
+
+    const fetchData = async () => {
+    
+      try{
+    
+        const data = await fetch('/api/users')
+          const response = await data.json()
+          setUsers(response.users)
+          console.log('Data fetched', response)
+    
+      }catch(error){
+            console.error('Error fetching data', error)
+          }
+    
+    }
+    fetchData()
+    },[])
+
+  return (
+    <div>
+      <Text/>
+      {
+        users.map((user) => (
+          <div key={user.user_id}>
+            {user.name}
+            {user.role}
+          </div>
+        ))
+      }
+    </div>
+  );
+}
