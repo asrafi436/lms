@@ -1,24 +1,59 @@
 'use client'
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 import CourseDetailsIntro from "./_components/CourseDetailsIntro";
 import CourseDetails from "./_components/CourseDetails";
 import Testimonials from "./_components/Testimonials";
 import RelatedCourses from "./_components/RelatedCourses";
 
-
-
 const SingleCoursePage = () => {
+    const { id } = useParams();
+    const [course, setCourse] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            if (!id) return;
+
+            try {
+                console.log("Fetching course data for ID:", id); // Debugging
+
+                const res = await fetch(`/api/courses/${id}`);
+
+                if (!res.ok) {
+                    throw new Error(`HTTP error! Status: ${res.status}`);
+                }
+
+                const data = await res.json();
+                setCourse(data.course);
+            } catch (error) {
+                console.error("Error fetching course:", error);
+                setError("Failed to load course.");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, [id]);
+
+    if (loading) return <p>Loading...</p>;
+    if (error) return <p>{error}</p>;
+    if (!course) return <p>Course not found</p>;
+
     return (
         <>
-            <CourseDetailsIntro />
-            
-
+            <CourseDetailsIntro
+                title={course.course_title}
+                subtitle={course.course_subtitle}
+                thumbnail={course.course_thumbnail}
+            />
             <CourseDetails />
-
-            {/* Testimonials */}
             <Testimonials />
-            {/* Releated Course */}
             <RelatedCourses />
         </>
     );
 };
+
 export default SingleCoursePage;
