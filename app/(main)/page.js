@@ -71,10 +71,10 @@ const HomePage = () => {
             “You don’t understand anything until you learn it more than one way.”
           </p>
           <div className="flex items-center gap-3 flex-wrap justify-center">
-            <Link href="" className={cn(buttonVariants({ size: "lg" }))}>
+            <Link href="/courses" className={cn(buttonVariants({ size: "lg" }))}>
               Explore Now
             </Link>
-            <Link href="" className={cn(buttonVariants({ variant: "outline", size: "lg" }))} >
+            <Link href="/register/instructor" className={cn(buttonVariants({ variant: "outline", size: "lg" }))} >
               Become An Instructor
             </Link>
           </div>

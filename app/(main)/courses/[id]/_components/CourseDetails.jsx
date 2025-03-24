@@ -33,7 +33,7 @@ const CourseDetails = ({ course }) => {
                             unoptimized // Disable Next.js optimization
                         />
 
-                        <p className="font-bold">Kazi Ariyan</p>
+                        <p className="font-bold">{`${course?.instructor_first_name} ${course?.instructor_last_name}`}</p>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
                         <span className="text-success font-semibold">Last Updated: </span>
@@ -60,7 +60,7 @@ const CourseDetails = ({ course }) => {
                         </TabsContent>
 
                         <TabsContent value="instructor">
-                            <CourseInstructor />
+                            <CourseInstructor course={course} />
                         </TabsContent>
 
                     </Tabs>

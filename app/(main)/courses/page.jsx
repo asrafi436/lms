@@ -1,11 +1,5 @@
 'use client'
 import React, { useEffect, useState } from 'react'
-// import { Button } from "@/components/ui/button";
-// import { formatPrice } from "@/lib/formatPrice";
-// import { ArrowRight } from "lucide-react";
-// import { BookOpen } from "lucide-react";
-// import Image from "next/image";
-// import Link from "next/link";
 import SearchCourse from "./_components/SearchCourse";
 import SortCourse from "./_components/SortCourse";
 import FilterCourseMobile from "./_components/FilterCourseMobile";
