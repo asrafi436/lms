@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,12 +6,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
 import bcrypt from 'bcryptjs'; // Import bcryptjs
+import { useState } from "react";
 
 export function SignupForm({ role }) {
   const router = useRouter();
-
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   async function onSubmit(event) {
     event.preventDefault();
+    setIsLoading(true);
+    setErrorMessage('');
 
     try {
       const formData = new FormData(event.currentTarget);
@@ -23,7 +27,8 @@ export function SignupForm({ role }) {
 
       // Ensure the passwords match
       if (password !== confirmPassword) {
-        alert("Passwords do not match");
+        setErrorMessage("Passwords do not match");
+        setIsLoading(false);
         return;
       }
 
@@ -46,14 +51,23 @@ export function SignupForm({ role }) {
         })
       });
 
+      console.log("Response status:", response.status);
       if (response.status === 201) {
-        router.push("/login");
+        console.log("Redirecting to login...");
+        router.push("/login"); // Redirection to the login page
+      } else {
+        const result = await response.json();
+        setErrorMessage(result.message || "An error occurred during registration.");
+        console.log(result);  // Log to see the result message
       }
-
     } catch (e) {
+      setErrorMessage("An error occurred. Please try again.");
       console.log(e.message);
+    } finally {
+      setIsLoading(false);
     }
   }
+
 
   return (
     <Card className="mx-auto max-w-sm">
@@ -96,16 +110,17 @@ export function SignupForm({ role }) {
             </div>
             <div className="grid gap-2">
               <Label htmlFor="password">Password</Label>
-              <Input id="password" name="password" type="password" />
+              <Input id="password" name="password" type="password" required />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="confirmPassword">Confirm Password</Label>
-              <Input id="confirmPassword" name="confirmPassword" type="password" />
+              <Input id="confirmPassword" name="confirmPassword" type="password" required />
             </div>
-            <Button type="submit" className="w-full">
-              Create an account
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? "Creating..." : "Create an account"}
             </Button>
           </div>
+          {errorMessage && <div className="mt-4 text-center text-sm text-red-500">{errorMessage}</div>}
           <div className="mt-4 text-center text-sm">
             Already have an account?{" "}
             <Link href="/login" className="underline">
