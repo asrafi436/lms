@@ -26,7 +26,14 @@ const SingleCoursePage = () => {
                 }
 
                 const data = await res.json();
-                setCourse(data.course);
+                console.log("API Response:", data); // Debugging
+
+                // ✅ Ensure testimonials are parsed from string to array
+                const testimonials = data.course.course_testimonials 
+                    ? JSON.parse(data.course.course_testimonials)
+                    : [];
+
+                setCourse({ ...data.course, course_testimonials: testimonials });
             } catch (error) {
                 console.error("Error fetching course:", error);
                 setError("Failed to load course.");
@@ -49,8 +56,10 @@ const SingleCoursePage = () => {
                 subtitle={course.course_subtitle}
                 thumbnail={course.course_thumbnail}
             />
-            <CourseDetails />
-            <Testimonials />
+            <CourseDetails course={course} />
+
+            <Testimonials testimonials={course.course_testimonials} />
+
             <RelatedCourses />
         </>
     );
