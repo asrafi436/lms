@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
-import bcrypt from 'bcryptjs'; // Import bcryptjs
+// import bcrypt from 'bcryptjs'; // Import bcryptjs
 import { useState } from "react";
 
 export function SignupForm({ role }) {
@@ -35,7 +35,7 @@ export function SignupForm({ role }) {
       const userRole = ((role === "student") || (role === "instructor")) ? role : "student";
 
       // Hash the password before sending it to the backend
-      const hashedPassword = await bcrypt.hash(password, 10);
+      // const hashedPassword = await bcrypt.hash(password, 10);
 
       const response = await fetch("/api/register", {
         method: "POST",
@@ -46,13 +46,13 @@ export function SignupForm({ role }) {
           firstName,
           lastName,
           email,
-          password: hashedPassword, // Use the hashed password
+          password, // Use the hashed password
           userRole
         })
       });
 
       console.log("Response status:", response.status);
-      if (response.status === 201) {
+      if (response.status === 200) {
         console.log("Redirecting to login...");
         router.push("/login"); // Redirection to the login page
       } else {

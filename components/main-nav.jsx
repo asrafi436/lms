@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Logo from './logo';
 import { cn } from '@/lib/utils';
 import { X } from 'lucide-react';
@@ -11,10 +11,19 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import "../app/globals.css";
 import MobileNav from './mobile-nav';
+import { useSession , signOut } from 'next-auth/react';
+
 
 const MainNav = ({ items, children }) => {
 
     const [showMobileMenu, setShowMobileMenu] = useState(false);
+    const {data:session} = useSession();
+    const [loginSession, setLoginSession] = useState(null);
+
+    useEffect(() => {
+        console.log("Test information");
+        setLoginSession(session);
+    },[session]);
 
     return (
         <>
