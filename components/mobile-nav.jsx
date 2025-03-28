@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { X } from 'lucide-react';
@@ -7,9 +7,21 @@ import { Menu } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { useLockBody } from '@/hooks/use-lock-body';
+import { useSession, signOut } from 'next-auth/react';
+
 
 const MobileNav = ({ items, children }) => {
     useLockBody();
+
+    const { data: session } = useSession();
+    const [loginSession, setLoginSession] = useState(null);
+
+    useEffect(() => {
+        console.log("Test information");
+        setLoginSession(session);
+    }, [session]);
+
+
     return (
 
 
@@ -32,30 +44,40 @@ const MobileNav = ({ items, children }) => {
                     }
                 </nav>
 
-                <div className='items-center gap-3 flex lg:hidden'>
+                {
+                    !loginSession && (
 
-                    <Link href='/login' className={cn(buttonVariants({ size: "sm" }), "px-4")}>
-                        Login
-                    </Link>
+                        <div className='items-center gap-3 flex lg:hidden'>
 
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="outline" size="sm">Register</Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-56 mt-4">
-                            <DropdownMenuItem className="cursor-pointer">
-                                <Link href='/register/student'>Student</Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="cursor-pointer">
-                                <Link href='/register/instructor'>Instructor</Link>
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                            <Link href='/login' className={cn(buttonVariants({ size: "sm" }), "px-4")}>
+                                Login
+                            </Link>
 
-                </div>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button variant="outline" size="sm">Register</Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="w-56 mt-4">
+                                    <DropdownMenuItem className="cursor-pointer">
+                                        <Link href='/register/student'>Student</Link>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem className="cursor-pointer">
+                                        <Link href='/register/instructor'>Instructor</Link>
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+
+                        </div>
+
+                    )
+                }
+
+
 
 
             </div>
+
+            
         </div>
     );
 };

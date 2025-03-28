@@ -51,11 +51,7 @@ const SingleCoursePage = () => {
 
     return (
         <>
-            <CourseDetailsIntro
-                title={course.course_title}
-                subtitle={course.course_subtitle}
-                thumbnail={course.course_thumbnail}
-            />
+            <CourseDetailsIntro  course={course} />
             <CourseDetails course={course} />
 
             <Testimonials testimonials={course.course_testimonials} />
