@@ -4,6 +4,7 @@ import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 
+
 const CourseInstructor = ({ course }) => {
     const [studentsCount, setStudentsCount] = useState(0);
     const [totalCourses, setTotalCourses] = useState(0);
