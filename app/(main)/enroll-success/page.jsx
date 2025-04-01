@@ -7,11 +7,10 @@ import { auth } from "@/auth";
 import { sendEmails } from "@/lib/emails";
 import { insertEnrollment } from "@/lib/enrollments"; // Import the function
 
-
 const Success = async ({ searchParams: { session_id, courseId } }) => {
   
   if (!session_id) {
-    throw new Error("Please provide a valid session id",session_id);
+    throw new Error("Please provide a valid session id", session_id);
   }
 
   // Get user session to check if the user is logged in
@@ -21,7 +20,7 @@ const Success = async ({ searchParams: { session_id, courseId } }) => {
     redirect("/login"); // Redirect to login page if no user session
   }
 
-  // Fetch the course data from the API using the courseId
+  // Fetch course details
   const courseResponse = await fetch(`http://localhost:3000/api/courses/${courseId}`);
   const course = await courseResponse.json();
 
@@ -41,29 +40,20 @@ const Success = async ({ searchParams: { session_id, courseId } }) => {
     expand: ["line_items", "payment_intent"],
   });
 
-
-
-  // console.log(checkoutSession); // For debugging
-
   const paymentIntent = checkoutSession?.payment_intent;
   const paymentStatus = paymentIntent?.status;
 
-  /// Cutomer Info 
+  /// Customer Info 
   const customerName = `${loggedInUser?.first_name} ${loggedInUser?.last_name}`;
   const customerEmail = loggedInUser?.email;
   const productName = course?.course?.course_title;
-  // console.log(customerName,customerEmail,productName);
-
-  
 
   if (paymentStatus === "succeeded") {
-
-    /// Update data to enrollment table 
-
     try {
+      /// Insert data into the enrollment table
       const enrollmentData = {        
         enrollment_date: new Date().toISOString().split("T")[0], // Current date
-        status: "pending", // Fixed from `nul` to `"pending"`
+        status: "pending", // Default status
         completion_date: null, // Set to null initially
         method: "stripe",
         course_id: course?.course?.course_id,
@@ -76,45 +66,39 @@ const Success = async ({ searchParams: { session_id, courseId } }) => {
       console.error("Error enrolling user:", error);
     }
 
-    // Send emails to the instructor and student who paid 
-
+    // Send emails to the instructor and student
     const instructorName = `${course?.course?.instructor_first_name} ${course?.course?.instructor_last_name}`;
     const instructorEmail = course?.course?.instructor_email;
-
-    // console.log(instructorName, instructorEmail);
 
     const emailsToSend = [
       {
         to: instructorEmail,
         subject: `New Enrollment For ${productName}`,
-        message: `Congratulations, ${instructorName}. A new student, ${customerName} has enrolled to your course ${productName} just now. `
+        message: `Congratulations, ${instructorName}. A new student, ${customerName} has enrolled in your course ${productName} just now.`
       },
       {
         to: customerEmail,
         subject: `Enrollment success for ${productName}`,
-        message: `Hey, ${customerName}. You have successfully enrolled for the course ${productName} `
+        message: `Hey, ${customerName}. You have successfully enrolled in the course ${productName}.`
       }
     ];
 
-     const emailSendResponse = await sendEmails(emailsToSend);
-    //  console.log(emailSendResponse);
-
+    await sendEmails(emailsToSend);
   }
-
 
   return (
     <div className="h-full w-full flex-1 flex flex-col items-center justify-center">
       <div className="flex flex-col items-center gap-6 max-w-[600px] text-center">
-      {
-         paymentStatus === "succeeded" && (
-           <>
-        <CircleCheck className="w-32 h-32 bg-green-500 rounded-full p-0 text-white" />
-        <h1 className="text-xl md:text-2xl lg:text-3xl">
-          Congratulations! <strong>{customerName}</strong> You Enrollment was Successful <strong>{productName}</strong> .
-        </h1>
-        </>
-         )
-       } 
+        {
+          paymentStatus === "succeeded" && (
+            <>
+              <CircleCheck className="w-32 h-32 bg-green-500 rounded-full p-0 text-white" />
+              <h1 className="text-xl md:text-2xl lg:text-3xl">
+                Congratulations! <strong>{customerName}</strong>, your enrollment in <strong>{productName}</strong> was successful!
+              </h1>
+            </>
+          )
+        } 
         <div className="flex items-center gap-3">
           <Button asChild size="sm">
             <Link href="/courses">Browse Courses</Link>
@@ -127,4 +111,5 @@ const Success = async ({ searchParams: { session_id, courseId } }) => {
     </div>
   );
 };
+
 export default Success;

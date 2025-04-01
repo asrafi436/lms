@@ -32,6 +32,7 @@ export default function RootLayout({ children }) {
         className={cn(`${geistSans.variable} ${geistMono.variable} antialiased, poppins.className`)}
       >
         {children}
+        <Toaster />
       </body>
     </html>
   );

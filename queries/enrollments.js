@@ -1,15 +1,18 @@
-import { createConnection } from '@/lib/db.js';
-import { NextResponse } from 'next/server';
+'use server';
 
-export async function GET(req, { params }) {
-    const { id } = params ?? {};
+import { createConnection } from '@/lib/db';
 
+export const getEnrolledCourses = async (userId) => {
+    if (!userId || typeof userId !== 'string') {
+        throw new Error('Invalid user ID provided');
+    }
+
+    let connection;
     try {
-        console.log("Fetching course with ID:", id); // Debugging
-
-        const db = await createConnection();
-
-        const SQL_COURSE = `SELECT 
+        connection = await createConnection(); // create a new connection
+        const [rows] = await connection.execute(
+            `SELECT 
+    e.*, 
     c.id AS course_id,
     c.title AS course_title,
     c.subtitle AS course_subtitle,
@@ -18,8 +21,8 @@ export async function GET(req, { params }) {
     c.price AS course_price,
     c.active AS course_active,
     c.learning AS learning_points,
-    c.created_on AS created_on,
-    c.modified_on AS modified_on,
+    c.created_on AS course_created_on,
+    c.modified_on AS course_modified_on,
 
     -- Instructor details
     u.id AS instructor_id,
@@ -101,22 +104,19 @@ export async function GET(req, { params }) {
         WHERE t.course_id = c.id
     ) AS course_testimonials
 
-FROM courses c
+FROM enrollments e
+JOIN courses c ON e.course_id = c.id
 JOIN users u ON c.instructor_id = u.id
 JOIN categories ca ON c.category_id = ca.id
 JOIN quizsets q ON c.quizset_id = q.id
-WHERE c.id = ?;`;
+WHERE e.student_id = ?;
+`,
+            [userId]
+        );
 
-        const [course] = await db.query(SQL_COURSE, [id]);
-
-        if (course.length === 0) {
-            return NextResponse.json({ message: "Course not found" }, { status: 404 });
-        }
-
-        return NextResponse.json({ course: course[0] });
-
+        return rows.length ? rows : [];
     } catch (error) {
-        console.error("Database Error:", error.message); // Log the error
-        return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+        console.error('Error fetching enrollments for user:', error);
+        throw new Error('Database query failed');
     }
-}
+};

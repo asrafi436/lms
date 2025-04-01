@@ -2,6 +2,7 @@
 import { UsersRound, MessageSquare, Star, Presentation } from "lucide-react";
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
 
 const CourseInstructor = ({ course }) => {
     const [studentsCount, setStudentsCount] = useState(0);
@@ -96,6 +97,13 @@ const CourseInstructor = ({ course }) => {
                             <li className="flex items-center space-x-3">
                                 <Star className="text-gray-600" />
                                 <div>{averageRating} Average Rating</div> {/* Display the average rating */}
+                            </li>
+                            <li className="flex space-x-3">
+                                <Link href={`/inst-profile/${course?.instructor_id}`}>
+                                    <div className='text-red-600 font-bold'>
+                                        See Profile
+                                    </div>
+                                </Link>
                             </li>
                         </ul>
                     </div>

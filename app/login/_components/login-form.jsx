@@ -1,19 +1,13 @@
 'use client'
 import Link from "next/link";
-
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import {Card,CardContent,CardDescription,CardHeader,CardTitle,} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ceredntialLogin } from "@/app/action/index.js";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export function LoginForm() {
 
@@ -32,6 +26,7 @@ export function LoginForm() {
           console.log(response.error)
           setError(response.error);
       } else {
+        toast.success("Login Successfuly!");
         router.push("/courses")
       }      
     } catch (e) {

@@ -107,7 +107,7 @@ const HomePage = () => {
           </Link>
         </div>
         <div className="mx-auto grid justify-center gap-4 grid-cols-2  md:grid-cols-3 2xl:grid-cols-4">
-          {categories.map((category) => {
+          {categories?.map((category) => {
             return (
               <Link href={`/categories/${category.id}`} key={category.id} className="relative overflow-hidden rounded-lg border bg-background p-2 hover:scale-105 transition-all duration-500 ease-in-out" >
                 <div className="flex  flex-col gap-4 items-center justify-between rounded-md p-6">
@@ -136,7 +136,7 @@ const HomePage = () => {
           </Link>
         </div>
         <div className="grid sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4 gap-4">
-          {courses.map((course) => {
+          {courses?.map((course) => {
             return (
               <CourseCard key={course.course_id} course={course} />
             );
