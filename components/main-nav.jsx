@@ -20,6 +20,25 @@ const MainNav = ({ items, children }) => {
     const { data: session } = useSession();
     const [loginSession, setLoginSession] = useState(null);
 
+    const [loggedInUser, setLoggedInUser] = useState(null);
+
+    useEffect(() => { 
+        setLoginSession(session);
+        async function fetchMe() {
+            try {
+                const response = await fetch("/api/me");
+                const data = await response.json();
+                console.log(data);
+                setLoggedInUser(data);
+            } catch (error) {
+                console.log(error)
+            }
+        }
+        fetchMe();
+    },[session]);
+
+    // console.log("output",loggedInUser);
+
     useEffect(() => {
         console.log("Test information");
         setLoginSession(session);
@@ -87,7 +106,7 @@ const MainNav = ({ items, children }) => {
                             <DropdownMenuTrigger asChild>
                                 <div className='cursor-pointer'>
                                     <Avatar>
-                                        <AvatarImage src="https://github.com/shadcn.png" alt="@ariyan" />
+                                        <AvatarImage src={loggedInUser?.profile_picture} alt="pro pic" />
                                         <AvatarFallback>CN</AvatarFallback>
                                     </Avatar>
                                 </div>
@@ -97,6 +116,11 @@ const MainNav = ({ items, children }) => {
                                 <DropdownMenuItem className="cursor-pointer" asChild>
                                     <Link href='/account'>Profile</Link>
                                 </DropdownMenuItem>
+                                {loggedInUser?.role === "instructor" && (
+                                    <DropdownMenuItem className="cursor-pointer" asChild>
+                                        <Link href='/dashboard'> <strong>Instructor Dashboard</strong> </Link>
+                                    </DropdownMenuItem>
+                                )}
                                 <DropdownMenuItem className="cursor-pointer" asChild>
                                     <Link href='/account/enrolled-courses'>My Courses</Link>
                                 </DropdownMenuItem>
@@ -104,7 +128,7 @@ const MainNav = ({ items, children }) => {
                                     <Link href=''>Testimonials & Certificates</Link>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem className="cursor-pointer" asChild>
-                                    <Link href='' onClick={(e) => {e.preventDefault(); signOut(); }} >Logout</Link>
+                                    <Link href='' onClick={(e) => { e.preventDefault(); signOut(); }} >Logout</Link>
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
 
