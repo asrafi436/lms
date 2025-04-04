@@ -16,22 +16,43 @@ export async function updateTitle(moduleId, newModule) {
 }
 
 
-export async function createCourseModule(data) {
+export async function createCourseModule(courseId, data) {
     try {
+        if (!courseId) {
+            console.error("Error: courseId is undefined");
+            throw new Error("Course ID is required to create a module.");
+        }
+
+        // Generate the unique ID for the new module
+        const newModuleId = uuidv4().replace(/-/g, ""); // Unique ID without hyphens
+
+        console.log("Generated new module ID:", newModuleId); // Log the generated ID
+
         const newModule = {
-            id: uuidv4().replace(/-/g, ""), // Convert UUID to 24-character string
+            id: newModuleId,  // Use the generated ID here
             title: data.title,
-            description: null,
-            status: null,
-            slug: null,
-            course_id: null,
-            duration: null
+            course_id: courseId,
         };
 
-        const module = await create(newModule);
+        const module = await createModule(newModule);
+        console.log("Module created successfully:", module);
+
         return module;
     } catch (e) {
-        console.error("module creation failed:", e);
+        console.error("Module creation failed:", e.message || e); // Log the full error message
         throw new Error("Failed to create module.");
     }
+}
+
+
+export async function reOrderModules(data){
+
+    try {
+        await Promise.all(data.map(async(element) => {
+            await Module.findByIdAndUpdate(element.id, {order: element.position});
+        }));
+    } catch (e) {
+        throw new Error(e);
+    }
+
 }

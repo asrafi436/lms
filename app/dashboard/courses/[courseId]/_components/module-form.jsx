@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 
 import { Button } from "@/components/ui/button";
-import {Form,FormControl,FormField,FormItem,FormMessage,} from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { Loader2, PlusCircle, Save, XCircle } from "lucide-react";
@@ -13,11 +13,10 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import { ModuleList } from "./module-list";
-import { updateTitle } from "@/app/action/module"; // adjust if needed
-
+import { createCourseModule, updateTitle, reOrderModules  } from "@/app/action/module"; // Updated import
 
 const formSchema = z.object({
-  title: z.string().min(1),
+  title: z.string().min(1, "Title is required"),
 });
 
 export const ModulesForm = ({ initialData, courseId }) => {
@@ -27,69 +26,58 @@ export const ModulesForm = ({ initialData, courseId }) => {
   const [editModuleId, setEditModuleId] = useState(null);
   const router = useRouter();
 
+  const form = useForm({
+    resolver: zodResolver(formSchema),
+    defaultValues: { title: "" },
+  });
+
+  const { isSubmitting, isValid } = form.formState;
+
   const toggleCreating = () => {
     setIsCreating((curr) => !curr);
     setEditModuleId(null);
   };
 
-  const form = useForm({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      title: "",
-    },
-  });
-
-  const { isSubmitting, isValid } = form.formState;
-
   const onSubmit = async (values) => {
     try {
-      setModules((prev) => [
-        ...prev,
-        {
-          id: Date.now().toString(),
-          title: values.title,
-        },
-      ]);
-      toast.success("Module created");
+      if (!courseId) {
+        toast.error("Invalid course ID");
+        return;
+      }
+
+      const newModule = await createCourseModule(courseId, values);
+
+      setModules((prev) => [...prev, newModule]);
+      toast.success("Module created successfully");
       toggleCreating();
       form.reset();
       router.refresh();
     } catch (error) {
       toast.error("Something went wrong");
+      console.error("Module creation error:", error);
     }
   };
 
   const onEditSubmit = async (id, values) => {
     try {
+      setIsUpdating(true);
       const res = await updateTitle(id, values.title);
+
       if (!res.success) {
         throw new Error(res.message);
       }
-  
-      const updated = modules.map((mod) =>
+
+      const updatedModules = modules.map((mod) =>
         mod.id === id ? { ...mod, title: values.title } : mod
       );
-      setModules(updated);
-      toast.success("Module updated");
+      setModules(updatedModules);
+      toast.success("Module updated successfully");
       setEditModuleId(null);
       form.reset();
       router.refresh();
     } catch (error) {
       toast.error("Failed to update module");
-      console.error("Update error:", error);
-    }
-  };
-  
-  
-
-  const onReorder = async (updateData) => {
-    try {
-      setIsUpdating(true);
-      // reorder logic here
-      toast.success("Modules reordered");
-      router.refresh();
-    } catch {
-      toast.error("Something went wrong");
+      console.error("Module update error:", error);
     } finally {
       setIsUpdating(false);
     }
@@ -106,6 +94,20 @@ export const ModulesForm = ({ initialData, courseId }) => {
     form.reset();
   };
 
+  // const onReorder = async (updateData) => {
+  //   console.log({ updateData });
+  //   try {
+  //     reOrderModules(updateData);
+  //     setIsUpdating(true);
+
+  //     toast.success("Chapters reordered");
+  //     router.refresh();
+  //   } catch {
+  //     toast.error("Something went wrong");
+  //   } finally {
+  //     setIsUpdating(false);
+  //   }
+
   return (
     <div className="relative mt-6 border bg-slate-100 rounded-md p-4">
       {isUpdating && (
@@ -117,14 +119,7 @@ export const ModulesForm = ({ initialData, courseId }) => {
       <div className="font-medium flex items-center justify-between">
         Course Modules
         <Button variant="ghost" onClick={toggleCreating}>
-          {isCreating ? (
-            <>Cancel</>
-          ) : (
-            <>
-              <PlusCircle className="h-4 w-4 mr-2" />
-              Add a module
-            </>
-          )}
+          {isCreating ? <>Cancel</> : <><PlusCircle className="h-4 w-4 mr-2" /> Add a module</>}
         </Button>
       </div>
 
@@ -132,9 +127,7 @@ export const ModulesForm = ({ initialData, courseId }) => {
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit((values) =>
-              editModuleId
-                ? onEditSubmit(editModuleId, values)
-                : onSubmit(values)
+              editModuleId ? onEditSubmit(editModuleId, values) : onSubmit(values)
             )}
             className="space-y-4 mt-4"
           >
@@ -146,7 +139,7 @@ export const ModulesForm = ({ initialData, courseId }) => {
                   <FormControl>
                     <Input
                       disabled={isSubmitting}
-                      placeholder="e.g. 'Advanced JavaScript'"
+                      placeholder="Module Title"
                       {...field}
                     />
                   </FormControl>
@@ -181,25 +174,10 @@ export const ModulesForm = ({ initialData, courseId }) => {
       )}
 
       {!isCreating && !editModuleId && (
-        <div
-          className={cn(
-            "text-sm mt-2",
-            !modules?.length && "text-slate-500 italic"
-          )}
-        >
+        <div className={cn("text-sm mt-2", !modules?.length && "text-slate-500 italic")}>
           {!modules?.length && "No module"}
-          <ModuleList
-            onEdit={startEdit}
-            onReorder={onReorder}
-            items={modules}
-          />
+          <ModuleList items={modules} onEdit={startEdit} onReorder={onReorder}/>
         </div>
-      )}
-
-      {!isCreating && !editModuleId && (
-        <p className="text-xs text-muted-foreground mt-4">
-          Drag & Drop to reorder the modules
-        </p>
       )}
     </div>
   );

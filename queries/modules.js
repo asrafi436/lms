@@ -72,26 +72,23 @@ export async function createModule(moduleData) {
     const db = await createConnection();
 
     const query = `
-      INSERT INTO course_modules (
-        id, title, description, status, slug, course_id, duration,
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO modules (id, title, course_id) 
+      VALUES (?, ?, ?)
     `;
-
     const values = [
       moduleData.id,
       moduleData.title,
-      moduleData.description,
-      moduleData.status,
-      moduleData.slug,
       moduleData.course_id,
-      moduleData.duration,
     ];
 
+    console.log("Executing SQL Query:", query, values); // Log the query and values
+
     const [result] = await db.execute(query, values);
+    console.log("SQL Query Result:", result); // Log the result to check if it succeeded
+
     return { id: moduleData.id, ...moduleData };
   } catch (error) {
     console.error("Error inserting module:", error);
     throw new Error("Module insert failed");
   }
 }
-
