@@ -4,7 +4,7 @@
 
 import { v4 as uuidv4 } from "uuid";  // Import UUID
 import { getLoggedInUser } from "@/lib/loggedin-user";
-import { create, updateCourseTitle, updateCourseDescription, updateCourseSubtitle, updateCoursePrice,  updateeCourseCategories } from "@/queries/courses";
+import { create, updateCourseTitle, updateCourseDescription, updateCourseSubtitle, updateCoursePrice,  updateeCourseCategories, updateCourseThumbnail } from "@/queries/courses";
 
 export async function createCourse(data) {
     try {
@@ -93,6 +93,19 @@ export async function updateCategoy(courseId, categoryData) {
       return { success: false, message: error.message };
     }
   }
+
+export async function updateThumbnail(courseId, thumbnail) {
+    try {
+      const success = await updateCourseThumbnail(courseId, thumbnail);
+      if (!success) {
+        throw new Error("Failed to update course category_id");
+      }
+      return { success: true, message: "Course category updated successfully" };
+    } catch (error) {
+      return { success: false, message: error.message };
+    }
+  }
+  
 
 
 

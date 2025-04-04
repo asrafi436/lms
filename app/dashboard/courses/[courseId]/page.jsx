@@ -33,7 +33,7 @@ import { getCategories } from "@/queries/courses";
      }
    });
 
-   console.log("Categories map Data:", mappedCategories);
+  //  console.log("Categories map Data:", mappedCategories);
 
 
 
@@ -58,7 +58,7 @@ import { getCategories } from "@/queries/courses";
           <TitleForm initialData={{ title: course.title }} courseId={course.id} />
           <SubtitleForm initialData={{ subtitle: course.subtitle }} courseId={course.id} />
           <DescriptionForm initialData={{ description: course.description }} courseId={course.id} />
-          <ImageForm initialData={{ thumbnail: course.thumbnail }} courseId={course.id} />
+          <ImageForm initialData={{imageUrl: `/assets/images/courses/${course?.thumbnail}`}} courseId={course.id} />
           <CategoryForm initialData={{value: course?.category_title }} courseId={courseId} options={mappedCategories} />
           <QuizSetForm initialData={{ quizsetId: course.quizset_id }} courseId={course.id} />
         </div>
