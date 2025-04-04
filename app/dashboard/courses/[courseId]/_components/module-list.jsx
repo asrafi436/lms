@@ -1,14 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  DragDropContext,
-  Droppable,
-  Draggable,
-  DropResult,
-} from "@hello-pangea/dnd";
+import {DragDropContext,Droppable,Draggable} from "@hello-pangea/dnd";
 import { Grip, Pencil } from "lucide-react";
-
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 
@@ -27,20 +21,20 @@ export const ModuleList = ({ items, onReorder, onEdit }) => {
   const onDragEnd = (result) => {
     if (!result.destination) return;
 
-    const items = Array.from(modules);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
+    const itemsCopy = Array.from(modules);
+    const [reorderedItem] = itemsCopy.splice(result.source.index, 1);
+    itemsCopy.splice(result.destination.index, 0, reorderedItem);
 
     const startIndex = Math.min(result.source.index, result.destination.index);
     const endIndex = Math.max(result.source.index, result.destination.index);
 
-    const updatedModules = items.slice(startIndex, endIndex + 1);
+    const updatedModules = itemsCopy.slice(startIndex, endIndex + 1);
 
-    setModules(items);
+    setModules(itemsCopy);
 
     const bulkUpdateData = updatedModules.map((module) => ({
       id: module.id,
-      position: items.findIndex((item) => item.id === module.id),
+      position: itemsCopy.findIndex((item) => item.id === module.id),
     }));
 
     onReorder(bulkUpdateData);
@@ -88,7 +82,7 @@ export const ModuleList = ({ items, onReorder, onEdit }) => {
                         {module.isPublished ? "Published" : "Draft"}
                       </Badge>
                       <Pencil
-                        onClick={() => onEdit(module.id)}
+                        onClick={() => onEdit(module)} // ✅ Pass full module here
                         className="w-4 h-4 cursor-pointer hover:opacity-75 transition"
                       />
                     </div>

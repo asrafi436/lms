@@ -12,6 +12,7 @@ import AlertBanner from "@/components/alert-banner";
 import { QuizSetForm } from "./_components/quiz-set-form";
 import { getCourseDetails } from "@/queries/courses";
 import { getCategories } from "@/queries/courses";
+import {getCourseModules } from "@/queries/modules.js";
 
   
  const EditCourse = async ({ params }) => {
@@ -22,6 +23,10 @@ import { getCategories } from "@/queries/courses";
 
   const categories = await getCategories();
   // console.log("Categories Data:", categories);
+
+  const modules = await getCourseModules(courseId);
+  console.log("Module Data:", modules.modules);
+
 
    
  
@@ -68,7 +73,7 @@ import { getCategories } from "@/queries/courses";
               <IconBadge icon={ListChecks} />
               <h2 className="text-xl">Course Modules</h2>
             </div>
-            <ModulesForm initialData={[]} courseId={course.id} />
+            <ModulesForm initialData={modules.modules} courseId={course.id} />
           </div>
           <div>
             <div className="flex items-center gap-x-2">

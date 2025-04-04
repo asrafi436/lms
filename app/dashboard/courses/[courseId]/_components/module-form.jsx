@@ -5,42 +5,32 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "@/components/ui/form";
+import {Form,FormControl,FormField,FormItem,FormMessage,} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { Loader2, PlusCircle } from "lucide-react";
+import { Loader2, PlusCircle, Save, XCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import { ModuleList } from "./module-list";
+import { updateTitle } from "@/app/action/module"; // adjust if needed
+
 
 const formSchema = z.object({
   title: z.string().min(1),
 });
-const initialModules = [
-  {
-    id: "1",
-    title: "Module 1",
-    isPublished: true,
-  },
-  {
-    id: "2",
-    title: "Module 2",
-  },
-];
+
 export const ModulesForm = ({ initialData, courseId }) => {
-  const [modules, setModules] = useState(initialModules);
-  const router = useRouter();
+  const [modules, setModules] = useState(initialData || []);
   const [isCreating, setIsCreating] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [editModuleId, setEditModuleId] = useState(null);
+  const router = useRouter();
 
-  const toggleCreating = () => setIsCreating((current) => !current);
+  const toggleCreating = () => {
+    setIsCreating((curr) => !curr);
+    setEditModuleId(null);
+  };
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -53,8 +43,8 @@ export const ModulesForm = ({ initialData, courseId }) => {
 
   const onSubmit = async (values) => {
     try {
-      setModules((modules) => [
-        ...modules,
+      setModules((prev) => [
+        ...prev,
         {
           id: Date.now().toString(),
           title: values.title,
@@ -62,18 +52,41 @@ export const ModulesForm = ({ initialData, courseId }) => {
       ]);
       toast.success("Module created");
       toggleCreating();
+      form.reset();
       router.refresh();
     } catch (error) {
       toast.error("Something went wrong");
     }
   };
 
+  const onEditSubmit = async (id, values) => {
+    try {
+      const res = await updateTitle(id, values.title);
+      if (!res.success) {
+        throw new Error(res.message);
+      }
+  
+      const updated = modules.map((mod) =>
+        mod.id === id ? { ...mod, title: values.title } : mod
+      );
+      setModules(updated);
+      toast.success("Module updated");
+      setEditModuleId(null);
+      form.reset();
+      router.refresh();
+    } catch (error) {
+      toast.error("Failed to update module");
+      console.error("Update error:", error);
+    }
+  };
+  
+  
+
   const onReorder = async (updateData) => {
-    console.log({ updateData });
     try {
       setIsUpdating(true);
-
-      toast.success("Chapters reordered");
+      // reorder logic here
+      toast.success("Modules reordered");
       router.refresh();
     } catch {
       toast.error("Something went wrong");
@@ -82,8 +95,15 @@ export const ModulesForm = ({ initialData, courseId }) => {
     }
   };
 
-  const onEdit = (id) => {
-    router.push(`/dashboard/courses/1/modules/${1}`);
+  const startEdit = (module) => {
+    form.setValue("title", module.title);
+    setEditModuleId(module.id);
+    setIsCreating(false);
+  };
+
+  const cancelEdit = () => {
+    setEditModuleId(null);
+    form.reset();
   };
 
   return (
@@ -93,6 +113,7 @@ export const ModulesForm = ({ initialData, courseId }) => {
           <Loader2 className="animate-spin h-6 w-6 text-sky-700" />
         </div>
       )}
+
       <div className="font-medium flex items-center justify-between">
         Course Modules
         <Button variant="ghost" onClick={toggleCreating}>
@@ -107,10 +128,14 @@ export const ModulesForm = ({ initialData, courseId }) => {
         </Button>
       </div>
 
-      {isCreating && (
+      {(isCreating || editModuleId) && (
         <Form {...form}>
           <form
-            onSubmit={form.handleSubmit(onSubmit)}
+            onSubmit={form.handleSubmit((values) =>
+              editModuleId
+                ? onEditSubmit(editModuleId, values)
+                : onSubmit(values)
+            )}
             className="space-y-4 mt-4"
           >
             <FormField
@@ -121,7 +146,7 @@ export const ModulesForm = ({ initialData, courseId }) => {
                   <FormControl>
                     <Input
                       disabled={isSubmitting}
-                      placeholder="e.g. 'Introduction to the course...'"
+                      placeholder="e.g. 'Advanced JavaScript'"
                       {...field}
                     />
                   </FormControl>
@@ -129,13 +154,33 @@ export const ModulesForm = ({ initialData, courseId }) => {
                 </FormItem>
               )}
             />
-            <Button disabled={!isValid || isSubmitting} type="submit">
-              Create
-            </Button>
+            <div className="flex gap-2">
+              <Button disabled={!isValid || isSubmitting} type="submit">
+                {editModuleId ? (
+                  <>
+                    <Save className="h-4 w-4 mr-2" /> Save
+                  </>
+                ) : (
+                  "Create"
+                )}
+              </Button>
+              {editModuleId && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={cancelEdit}
+                  disabled={isSubmitting}
+                >
+                  <XCircle className="h-4 w-4 mr-2" />
+                  Cancel
+                </Button>
+              )}
+            </div>
           </form>
         </Form>
       )}
-      {!isCreating && (
+
+      {!isCreating && !editModuleId && (
         <div
           className={cn(
             "text-sm mt-2",
@@ -144,13 +189,14 @@ export const ModulesForm = ({ initialData, courseId }) => {
         >
           {!modules?.length && "No module"}
           <ModuleList
-            onEdit={onEdit}
+            onEdit={startEdit}
             onReorder={onReorder}
-            items={modules || []}
+            items={modules}
           />
         </div>
       )}
-      {!isCreating && (
+
+      {!isCreating && !editModuleId && (
         <p className="text-xs text-muted-foreground mt-4">
           Drag & Drop to reorder the modules
         </p>
