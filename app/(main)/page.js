@@ -136,11 +136,11 @@ const HomePage = () => {
           </Link>
         </div>
         <div className="grid sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4 gap-4">
-          {courses?.map((course) => {
-            return (
+          {courses
+            .filter(course => Number(course.course_active) === 1) // Ensure filtering is correct
+            .map(course => (
               <CourseCard key={course.course_id} course={course} />
-            );
-          })}
+            ))}
         </div>
       </section>
 

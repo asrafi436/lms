@@ -12,15 +12,15 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
 
-import { updateTitle } from "@/app/action/course";
+import { updateSubtitle } from "@/app/action/course";
 
 const formSchema = z.object({
-  title: z.string().min(1, {
-    message: "Title is required",
+  subtitle: z.string().min(1, {
+    message: "Subtitle is required",
   }),
 });
 
-export const TitleForm = ({ initialData, courseId }) => {
+export const SubtitleForm = ({ initialData, courseId }) => {
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
 
@@ -35,10 +35,10 @@ export const TitleForm = ({ initialData, courseId }) => {
 
   const onSubmit = async (values) => {
     try {
-      const response = await updateTitle(courseId, values.title);
+      const response = await updateSubtitle(courseId, values.subtitle);
 
       if (response.success) {
-        toast.success("Course title updated successfully!");
+        toast.success("Course subtitle updated successfully!");
         toggleEdit();
         router.refresh();
       } else {
@@ -52,18 +52,18 @@ export const TitleForm = ({ initialData, courseId }) => {
   return (
     <div className="mt-6 border bg-gray-50 rounded-md p-4">
       <div className="font-medium flex items-center justify-between">
-        Course title
+        Course subtitle
         <Button variant="ghost" onClick={toggleEdit}>
-          {isEditing ? <>Cancel</> : <><Pencil className="h-4 w-4 mr-2" /> Edit Title</>}
+          {isEditing ? <>Cancel</> : <><Pencil className="h-4 w-4 mr-2" /> Edit Subtitle</>}
         </Button>
       </div>
-      {!isEditing && <p className="text-sm mt-2">{initialData.title}</p>}
+      {!isEditing && <p className="text-sm mt-2">{initialData.subtitle}</p>}
       {isEditing && (
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 mt-4">
             <FormField
               control={form.control}
-              name="title"
+              name="subtitle"
               render={({ field }) => (
                 <FormItem>
                   <FormControl>

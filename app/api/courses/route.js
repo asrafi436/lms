@@ -16,6 +16,8 @@ export async function GET() {
    c.subtitle AS course_subtitle,
    c.thumbnail AS course_thumbnail,
    c.price AS course_price,
+   c.active AS course_active,
+   c.description AS course_description,
    u.id AS instructor_id,
    u.first_name AS instructor_first_name,
    u.last_name AS instructor_last_name,

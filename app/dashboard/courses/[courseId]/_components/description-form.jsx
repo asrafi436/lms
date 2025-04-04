@@ -5,18 +5,14 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "@/components/ui/form";
+import {Form,FormControl,FormField,FormItem,FormMessage} from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { Pencil } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { updateDescription } from "@/app/action/course";
+
 
 const formSchema = z.object({
   description: z.string().min(1, {
@@ -31,19 +27,23 @@ export const DescriptionForm = ({ initialData, courseId }) => {
   const toggleEdit = () => setIsEditing((current) => !current);
 
   const form = useForm({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      description: initialData?.description || "",
-    },
-  });
+      resolver: zodResolver(formSchema),
+      defaultValues: initialData,
+    });
 
   const { isSubmitting, isValid } = form.formState;
 
   const onSubmit = async (values) => {
     try {
-      toast.success("Course updated");
-      toggleEdit();
-      router.refresh();
+      const response = await updateDescription(courseId, values.description);
+
+      if (response.success) {
+        toast.success("Course Description updated successfully!");
+        toggleEdit();
+        router.refresh();
+      } else {
+        throw new Error(response.message);
+      }
     } catch (error) {
       toast.error("Something went wrong");
     }

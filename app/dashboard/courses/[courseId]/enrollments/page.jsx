@@ -5,7 +5,7 @@ import { DataTable } from "./_components/data-table";
 const EnrollmentsPage = async ({ params }) => {
   const { courseId } = params; // Destructure params to get courseId
 
-  console.log(courseId); // This will log the correct courseId
+  // console.log(courseId); // This will log the correct courseId
 
   let enrollments = [];
 

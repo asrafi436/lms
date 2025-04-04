@@ -3,15 +3,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "@/components/ui/form";
+import {Form,FormControl,FormField,FormItem,FormMessage} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { formatPrice } from "@/lib/formatPrice";
 import { cn } from "@/lib/utils";
@@ -19,6 +12,8 @@ import { Pencil } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
+import { updatePrice } from "@/app/action/course";
+
 
 const formSchema = z.object({
   price: z.coerce.number(),
@@ -40,14 +35,21 @@ export const PriceForm = ({ initialData, courseId }) => {
   const { isSubmitting, isValid } = form.formState;
 
   const onSubmit = async (values) => {
-    try {
-      toast.success("Course updated");
-      toggleEdit();
-      router.refresh();
-    } catch (error) {
-      toast.error("Something went wrong");
-    }
-  };
+     try {
+       const response = await updatePrice(courseId, values.price);
+ 
+       if (response.success) {
+         toast.success("Course price updated successfully!");
+         toggleEdit();
+         router.refresh();
+       } else {
+         throw new Error(response.message);
+       }
+     } catch (error) {
+       toast.error("Something went wrong");
+     }
+   };
+ 
 
   return (
     <div className="mt-6 border bg-gray-50 rounded-md p-4">
