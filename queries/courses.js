@@ -23,40 +23,40 @@ export async function getCategories() {
 }
 
 
-
 export async function getCourseDetails(courseId) {
   try {
     if (!courseId) {
       throw new Error("Course ID is required");
     }
 
-    const db = await createConnection();
+    const db = await createConnection(); // Get the pooled connection
 
     const query = `
-                        SELECT 
-                        courses.*, 
-                        categories.title AS category_title
-                        FROM courses
-                        LEFT JOIN categories ON courses.category_id = categories.id
-                        WHERE courses.id = ?
-                        LIMIT 1;
-
-                    `;
+      SELECT 
+        courses.*, 
+        categories.title AS category_title
+      FROM courses
+      LEFT JOIN categories ON courses.category_id = categories.id
+      WHERE courses.id = ?
+      LIMIT 1;
+    `;
 
     const values = [courseId];
-    const [courses] = await db.execute(query, values);
+    const [courses] = await db.execute(query, values); // Use the pool to execute the query
 
     if (!courses || courses.length === 0) {
       console.error("No course found with ID:", courseId);
       return null;
     }
 
-    return courses[0]; // This now includes category_title
+    return courses[0]; // Return the first course with category_title
+
   } catch (error) {
     console.error("Error fetching course details:", error);
     throw new Error("Failed to fetch course details.");
   }
 }
+
 
 
 

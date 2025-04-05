@@ -5,13 +5,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "@/components/ui/form";
+import {Form,FormControl,FormField,FormItem,FormMessage} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { Loader2, PlusCircle } from "lucide-react";
@@ -20,29 +14,25 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { LessonList } from "./lesson-list";
 import { LessonModal } from "./lesson-modal";
+import { createModuleLesson, reOrderLessons } from "@/app/action/lesson"; 
+import { getLessonByLessonId } from "@/queries/lessons";
+
+
+
 
 const formSchema = z.object({
   title: z.string().min(1),
 });
-const initialModules = [
-  {
-    id: "1",
-    title: "Module 1",
-    isPublished: true,
-  },
-  {
-    id: "2",
-    title: "Module 2",
-  },
-];
-export const LessonForm = ({ initialData, courseId }) => {
+
+export const LessonForm = ({ initialData, moduleId,courseId }) => {
+
   const [isEditing, setIsEditing] = useState(false);
-  const [modules, setModules] = useState(initialModules);
-  const router = useRouter();
+  const [lessons, setLessons] = useState(initialData || []);
   const [isCreating, setIsCreating] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
+  const router = useRouter();
+  const [lessonToEdit, setLessonToEdit] = useState(null);
 
-  const toggleCreating = () => setIsCreating((current) => !current);
   const toggleEditing = () => setIsEditing((current) => !current);
 
   const form = useForm({
@@ -54,40 +44,58 @@ export const LessonForm = ({ initialData, courseId }) => {
 
   const { isSubmitting, isValid } = form.formState;
 
+  const toggleCreating = () => {
+    setIsCreating((curr) => !curr);
+  };
+
   const onSubmit = async (values) => {
-    try {
-      setModules((modules) => [
-        ...modules,
-        {
-          id: Date.now().toString(),
-          title: values.title,
-        },
-      ]);
-      toast.success("Module created");
-      toggleCreating();
-      router.refresh();
-    } catch (error) {
-      toast.error("Something went wrong");
-    }
+   try {
+         if (!moduleId) {
+           toast.error("Invalid course ID");
+           return;
+         }
+   
+         const newOrder = lessons.length;
+         const newLesons = await createModuleLesson(moduleId, {
+           ...values,
+           order: newOrder,
+         });
+   
+         setLessons((prev) => [...prev, newLesons]);
+         toast.success("Lesson created successfully");
+         toggleCreating();
+         form.reset();
+         router.refresh();
+       } catch (error) {
+         toast.error("Something went wrong");
+         console.error("Lesson creation error:", error);
+       }
   };
 
-  const onReorder = async (updateData) => {
-    console.log({ updateData });
-    try {
-      setIsUpdating(true);
+   const onReorder = async (updateData) => {
+      try {
+        await reOrderLessons(updateData);
+        setIsUpdating(true);
+  
+        toast.success("Lesson reordered");
+        router.refresh();
+      } catch (error) {
+        toast.error("Something went wrong");
+        console.error("Reorder error:", error);
+      } finally {
+        setIsUpdating(false);
+      }
+    };
 
-      toast.success("Lesson reordered");
-      router.refresh();
-    } catch {
-      toast.error("Something went wrong");
-    } finally {
-      setIsUpdating(false);
-    }
-  };
-
-  const onEdit = (id) => {
+  const startEdit = async (id) => {
+    const foundLesson = await getLessonByLessonId(id );
+    console.log("Editing lesson:", foundLesson);
+    setLessonToEdit(foundLesson);
     setIsEditing(true);
   };
+
+
+  const sortedLessons = lessons.sort((a, b) => a.order - b.order);
 
   return (
     <div className="relative mt-6 border bg-slate-100 rounded-md p-4">
@@ -139,26 +147,20 @@ export const LessonForm = ({ initialData, courseId }) => {
         </Form>
       )}
       {!isCreating && (
-        <div
-          className={cn(
-            "text-sm mt-2",
-            !modules?.length && "text-slate-500 italic"
-          )}
-        >
-          {!modules?.length && "No module"}
-          <LessonList
-            onEdit={onEdit}
-            onReorder={onReorder}
-            items={modules || []}
-          />
-        </div>
-      )}
+              <div className={cn(
+                "text-sm mt-2", 
+                !lessons?.length && "text-slate-500 italic")}>
+                {!lessons?.length && "No module"}
+                <LessonList items={sortedLessons} onEdit={startEdit} onReorder={onReorder} />
+              </div>
+            )}
       {!isCreating && (
         <p className="text-xs text-muted-foreground mt-4">
-          Drag & Drop to reorder the modules
+          Drag & Drop to reorder the Lessons
         </p>
       )}
-      <LessonModal open={isEditing} setOpen={setIsEditing} />
+      <LessonModal open={isEditing} setOpen={setIsEditing}  courseId={courseId} lesson={lessonToEdit}  />
+      {/*  */}
     </div>
   );
 };

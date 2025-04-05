@@ -3,23 +3,17 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Pencil } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
+import { updateTitle } from "@/app/action/module"; // Import the updateTitle action
 
 const formSchema = z.object({
-  title: z.string().min(1),
+  title: z.string().min(1, "Title is required"),
 });
 
 export const ModuleTitleForm = ({ initialData, courseId, chapterId }) => {
@@ -35,13 +29,24 @@ export const ModuleTitleForm = ({ initialData, courseId, chapterId }) => {
 
   const { isSubmitting, isValid } = form.formState;
 
-  const onSubmit = async (values) => {
+  // Function to handle the title update
+  const onEditSubmit = async (values) => {
     try {
-      toast.success("Module title updated");
+    toast.info("Updating module title...");
+
+    // Call the action to update the module title
+    const res = await updateTitle(chapterId, values.title);
+
+    if (!res.success) {
+      throw new Error(res.message);
+    }
+
+      toast.success("Module title updated successfully");
       toggleEdit();
-      router.refresh();
-    } catch {
-      toast.error("Something went wrong");
+      router.refresh();  // Refresh the page to reflect changes
+    } catch (error) {
+      toast.error("Failed to update module title");
+      console.error("Module update error:", error);
     }
   };
 
@@ -60,11 +65,11 @@ export const ModuleTitleForm = ({ initialData, courseId, chapterId }) => {
           )}
         </Button>
       </div>
-      {!isEditing && <p className="text-sm mt-2">{"Reactive Accelerator"}</p>}
+      {!isEditing && <p className="text-sm mt-2">{initialData?.title}</p>}
       {isEditing && (
         <Form {...form}>
           <form
-            onSubmit={form.handleSubmit(onSubmit)}
+            onSubmit={form.handleSubmit(onEditSubmit)}
             className="space-y-4 mt-4"
           >
             <FormField

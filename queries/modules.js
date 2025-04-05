@@ -1,3 +1,5 @@
+"use server";
+
 import { createConnection } from "@/lib/db";
 
 export async function getCourseModules(courseId) {
@@ -17,7 +19,8 @@ export async function getCourseModules(courseId) {
         modules.slug,
         modules.description,
         modules.status,
-        modules.duration
+        modules.duration,
+        modules.order
       FROM modules
       WHERE modules.course_id = ?
     `;
@@ -45,6 +48,41 @@ export async function getCourseModules(courseId) {
   }
 }
 
+export async function getModuleById(moduleId) {
+  try {
+    if (!moduleId) {
+      throw new Error("Module ID is required");
+    }
+
+    const db = await createConnection();
+
+    const query = `
+      SELECT 
+        id,
+        course_id,
+        title,
+        slug,
+        description,
+        status,
+        duration,
+        \`order\`
+      FROM modules
+      WHERE id = ?
+      LIMIT 1
+    `;
+
+    const [rows] = await db.execute(query, [moduleId]);
+
+    if (!rows || rows.length === 0) {
+      return null;
+    }
+
+    return rows[0];
+  } catch (error) {
+    console.error("Error fetching module by ID:", error);
+    throw new Error("Failed to fetch module.");
+  }
+}
 
 export async function updateModuleTitle(moduleId, newModule) {
   try {
@@ -72,19 +110,20 @@ export async function createModule(moduleData) {
     const db = await createConnection();
 
     const query = `
-      INSERT INTO modules (id, title, course_id) 
-      VALUES (?, ?, ?)
+      INSERT INTO modules (id, title, course_id, \`order\`) 
+      VALUES (?, ?, ?, ?)
     `;
     const values = [
       moduleData.id,
       moduleData.title,
       moduleData.course_id,
+      moduleData.order,
     ];
 
-    console.log("Executing SQL Query:", query, values); // Log the query and values
+    console.log("Executing SQL Query:", query.trim(), values);
 
     const [result] = await db.execute(query, values);
-    console.log("SQL Query Result:", result); // Log the result to check if it succeeded
+    console.log("SQL Query Result:", result);
 
     return { id: moduleData.id, ...moduleData };
   } catch (error) {
@@ -92,3 +131,33 @@ export async function createModule(moduleData) {
     throw new Error("Module insert failed");
   }
 }
+
+
+
+
+
+export async function updateOrder(moduleId, newOrder) {
+  const db = await createConnection();  // Create a new connection
+
+  try {
+    await db.beginTransaction();  // Start the transaction
+
+    const query = `UPDATE modules SET \`order\` = ? WHERE id = ?`;
+    const values = [newOrder, moduleId];
+    await db.execute(query, values);  // Execute the update for the specific module
+
+    await db.commit();  // Commit the transaction
+  } catch (e) {
+    console.error("Reordering modules failed:", e);
+    await db.rollback();  // Rollback the transaction in case of error
+    throw new Error("Failed to reorder modules");
+  }
+}
+
+
+
+
+
+
+
+

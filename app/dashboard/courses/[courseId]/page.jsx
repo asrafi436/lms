@@ -25,7 +25,7 @@ import {getCourseModules } from "@/queries/modules.js";
   // console.log("Categories Data:", categories);
 
   const modules = await getCourseModules(courseId);
-  console.log("Module Data:", modules.modules);
+  // console.log("Module length:", modules.modules.length);
 
 
    

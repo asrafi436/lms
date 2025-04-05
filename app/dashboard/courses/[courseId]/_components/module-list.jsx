@@ -44,6 +44,8 @@ export const ModuleList = ({ items, onReorder, onEdit }) => {
     return null;
   }
 
+ 
+
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       <Droppable droppableId="modules">
