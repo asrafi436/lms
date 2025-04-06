@@ -26,22 +26,30 @@ const formSchema = z.object({
 });
 
 export const VideoUrlForm = ({ initialData, courseId, lessonId }) => {
+
+
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
+  
 
   // Local state for video URL and duration
   const [state, setState] = useState({
-    url: initialData?.url,
-    duration: formatDuration(initialData?.duration),
+    url: initialData?.url || "",
+    duration: initialData?.duration ? formatDuration(initialData.duration) : "",
   });
+  
 
   const toggleEdit = () => setIsEditing((current) => !current);
 
   // Form setup using react-hook-form and zod
   const form = useForm({
     resolver: zodResolver(formSchema),
-    defaultValues: initialData,
+    defaultValues: {
+    url: initialData?.url || "",
+    duration: initialData?.duration ? formatDuration(initialData.duration) : "",
+    },
   });
+  
 
   const { isSubmitting, isValid } = form.formState;
 

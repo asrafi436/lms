@@ -2,7 +2,6 @@
 
 "use server";
 
-import { v4 as uuidv4 } from "uuid";  // Import UUID
 import { getLoggedInUser } from "@/lib/loggedin-user";
 import { create, updateCourseTitle, updateCourseDescription, updateCourseSubtitle,
      updateCoursePrice,  updateeCourseCategories, updateCourseThumbnail,
@@ -13,7 +12,7 @@ export async function createCourse(data) {
     try {
         const loggedinUser = await getLoggedInUser();
         const newCourse = {
-            id: uuidv4().replace(/-/g, ""), // Convert UUID to 24-character string
+            id: data.id,
             title: data.title,
             description: data.description,
             thumbnail: null,

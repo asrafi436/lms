@@ -1,6 +1,7 @@
 "use client";
 
 export const VideoPlayer = ({url}) => {
+  if (!url) return null; // 🛑 Prevents rendering an empty iframe
   return (
     <div className="relative aspect-video">
       <iframe

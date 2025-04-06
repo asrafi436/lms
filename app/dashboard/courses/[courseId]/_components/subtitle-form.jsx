@@ -7,7 +7,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner"; // Ensure toast notifications are used
 
-import {Form,FormControl,FormField,FormItem,FormMessage} from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
@@ -21,6 +21,8 @@ const formSchema = z.object({
 });
 
 export const SubtitleForm = ({ initialData, courseId }) => {
+
+
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
 
@@ -28,7 +30,9 @@ export const SubtitleForm = ({ initialData, courseId }) => {
 
   const form = useForm({
     resolver: zodResolver(formSchema),
-    defaultValues: initialData,
+    defaultValues: {
+      subtitle: initialData.subtitle || "",
+    },
   });
 
   const { isSubmitting, isValid } = form.formState;

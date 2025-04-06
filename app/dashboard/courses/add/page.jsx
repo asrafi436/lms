@@ -14,6 +14,8 @@ import {Select,SelectContent,SelectItem,SelectTrigger,SelectValue} from "@/compo
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { createCourse } from "@/app/action/course";
+import { v4 as uuidv4 } from "uuid";  // Import UUID
+
 
 
 const formSchema = z.object({
@@ -38,16 +40,19 @@ const AddCourse = () => {
 
   const { isSubmitting, isValid } = form.formState;
 
+  const id = uuidv4().replace(/-/g, "").slice(0, 24);
+
 
   const onSubmit = async (values) => {
     try {
         const course = await createCourse({
+            id: id,
             title: values.title,
             description: values.description
         });
 
         if (course?.id) {
-            router.push(`/dashboard/courses/${course.id}`);
+            router.push(`/dashboard/courses/${id}`);
             toast.success("Course created successfully!");
             console.log(course);
         } else {
