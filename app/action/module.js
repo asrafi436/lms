@@ -1,7 +1,7 @@
 "use server";
 
 import { v4 as uuidv4 } from "uuid";
-import { updateModuleTitle, createModule, updateOrder } from "@/queries/modules";
+import { updateModuleTitle, createModule, updateOrder, removeModule, updateModulePublishState } from "@/queries/modules";
 
 export async function updateTitle(moduleId, newModule) {
   try {
@@ -49,6 +49,26 @@ export async function createCourseModule(courseId, data) {
     } catch (e) {
       // Handle errors by throwing a new error
       throw new Error(`Failed to reorder modules: ${e.message}`);
+    }
+  }
+  
+  export async function changeModulePublishState(moduleId, newState) {
+    try {
+      const actualState = await updateModulePublishState(moduleId, newState);
+      return actualState;
+    } catch (error) {
+      console.error("Error changing module publish state:", error);
+      throw new Error(error.message || "Failed to change module publish state");
+    }
+  }
+  
+  export async function deleteModule(moduleId) {
+    try {
+      const res = await removeModule(moduleId);
+      return res;
+    } catch (err) {
+      console.error("Error deleting module:", err);
+      throw new Error("Failed to delete module");
     }
   }
   

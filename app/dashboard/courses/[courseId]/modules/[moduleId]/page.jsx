@@ -7,6 +7,7 @@ import { LessonForm } from "./_components/lesson-form";
 import { CourseActions } from "../../_components/course-action";
 import { getModuleById } from "@/queries/modules";
 import { getLessonById } from "@/queries/lessons";
+import { ModuleActions } from "./_components/module-action";
 
 const Module = async ({ params }) => {
   const { courseId, moduleId } = params;
@@ -17,6 +18,7 @@ const Module = async ({ params }) => {
   const lessons = await getLessonById(moduleId);
 
   // console.log("Fetched lessons:", lessons);
+  // const sanitizedModule = sanitizeData(module);
 
   if (!module) {
     return (
@@ -31,7 +33,7 @@ const Module = async ({ params }) => {
 
   return (
     <>
-      {!module.isPublished && (
+      {!module.status && (
         <AlertBanner
           label="This module is unpublished. It will not be visible in the course."
           variant="warning"
@@ -49,7 +51,9 @@ const Module = async ({ params }) => {
               Back to course setup
             </Link>
             <div className="flex items-center justify-end">
-              <CourseActions />
+
+            <ModuleActions module={module} courseId={courseId} />
+
             </div>
           </div>
         </div>

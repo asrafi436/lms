@@ -95,7 +95,10 @@ export const LessonForm = ({ initialData, moduleId,courseId }) => {
   };
 
 
-  const sortedLessons = lessons.sort((a, b) => a.order - b.order);
+  const sortedLessons = lessons
+  .filter((lesson) => lesson && lesson.order !== undefined) // Ensure lesson is not null/undefined and has 'order' property
+  .sort((a, b) => a.order - b.order);
+
 
   return (
     <div className="relative mt-6 border bg-slate-100 rounded-md p-4">

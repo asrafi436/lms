@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useState } from "react";
 import {
   DragDropContext,
@@ -46,7 +44,6 @@ export const LessonList = ({ items, onReorder, onEdit }) => {
   
     onReorder(bulkUpdateData);
   };
-  
 
   if (!isMounted) {
     return null;
@@ -58,13 +55,12 @@ export const LessonList = ({ items, onReorder, onEdit }) => {
         {(provided) => (
           <div {...provided.droppableProps} ref={provided.innerRef}>
             {lessons.map((lesson, index) => (
-              <Draggable key={lesson.id} draggableId={lesson.id} index={index}>
+              <Draggable key={lesson?.id || `lesson-${index}`} draggableId={lesson?.id || `lesson-${index}`} index={index}>
                 {(provided) => (
                   <div
                     className={cn(
                       "flex items-center gap-x-2 bg-slate-200 border-slate-200 border text-slate-700 rounded-md mb-4 text-sm",
-                      lesson.isPublished &&
-                        "bg-sky-100 border-sky-200 text-sky-700"
+                      lesson?.isPublished && "bg-sky-100 border-sky-200 text-sky-700"
                     )}
                     ref={provided.innerRef}
                     {...provided.draggableProps}
@@ -72,8 +68,7 @@ export const LessonList = ({ items, onReorder, onEdit }) => {
                     <div
                       className={cn(
                         "px-2 py-3 border-r border-r-slate-200 hover:bg-slate-300 rounded-l-md transition",
-                        lesson.isPublished &&
-                          "border-r-sky-200 hover:bg-sky-200"
+                        lesson?.isPublished && "border-r-sky-200 hover:bg-sky-200"
                       )}
                       {...provided.dragHandleProps}
                     >
@@ -81,19 +76,19 @@ export const LessonList = ({ items, onReorder, onEdit }) => {
                     </div>
                     <div className="flex items-center gap-2">
                       <CirclePlay size={18} />
-                      {lesson.title}
+                      {lesson?.title}
                     </div>
                     <div className="ml-auto pr-2 flex items-center gap-x-2">
                       <Badge
                         className={cn(
                           "bg-gray-500",
-                          lesson.isPublished && "bg-emerald-600"
+                          lesson?.isPublished && "bg-emerald-600"
                         )}
                       >
-                        {lesson.isPublished ? "Published" : "Draft"}
+                        {lesson?.isPublished ? "Published" : "Draft"}
                       </Badge>
                       <Pencil
-                        onClick={() => onEdit(lesson.id)}
+                        onClick={() => onEdit(lesson?.id)}
                         className="w-4 h-4 cursor-pointer hover:opacity-75 transition"
                       />
                     </div>

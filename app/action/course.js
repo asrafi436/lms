@@ -4,7 +4,10 @@
 
 import { v4 as uuidv4 } from "uuid";  // Import UUID
 import { getLoggedInUser } from "@/lib/loggedin-user";
-import { create, updateCourseTitle, updateCourseDescription, updateCourseSubtitle, updateCoursePrice,  updateeCourseCategories, updateCourseThumbnail } from "@/queries/courses";
+import { create, updateCourseTitle, updateCourseDescription, updateCourseSubtitle,
+     updateCoursePrice,  updateeCourseCategories, updateCourseThumbnail,
+     changeCourseStateInDB, deleteFromDB
+    } from "@/queries/courses";
 
 export async function createCourse(data) {
     try {
@@ -105,6 +108,30 @@ export async function updateThumbnail(courseId, thumbnail) {
       return { success: false, message: error.message };
     }
   }
+
+
+// Function to change course publish state (active/unpublished)
+export async function changeCoursePublishState(courseId, newState) {
+  try {
+    const actualState = await changeCourseStateInDB(courseId, newState);
+    return actualState;
+  } catch (error) {
+    console.error("Error changing course publish state:", error);
+    throw new Error(error.message || "Failed to change publish state");
+  }
+}
+
+// Function to delete a course
+export async function deleteCourse(courseId) {
+  try {
+    const result = await deleteFromDB(courseId);
+    return result;
+  } catch (err) {
+    console.error("Error deleting course:", err);
+    throw new Error("Failed to delete course");
+  }
+}
+
   
 
 

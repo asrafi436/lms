@@ -156,7 +156,57 @@ export async function updateOrder(moduleId, newOrder) {
 
 
 
+export async function updateModulePublishState(moduleId, newState) {
+  try {
+    const db = await createConnection();
 
+    const updateQuery = `
+      UPDATE modules
+      SET status = ?
+      WHERE id = ?
+    `;
+    const [updateResult] = await db.execute(updateQuery, [newState, moduleId]);
+
+    if (updateResult.affectedRows === 0) {
+      throw new Error("Module not found or already in that state.");
+    }
+
+    const [rows] = await db.execute("SELECT status FROM modules WHERE id = ?", [moduleId]);
+    if (!rows.length) {
+      throw new Error("Failed to fetch updated module.");
+    }
+
+    return rows[0].status; // Return the updated status
+  } catch (error) {
+    console.error("Error updating module publish state:", error);
+    throw new Error("Database update failed");
+  }
+}
+
+export async function removeModule(moduleId) {
+  try {
+    if (!moduleId) {
+      throw new Error("Module ID is required");
+    }
+
+    const db = await createConnection();
+
+    const deleteQuery = `
+      DELETE FROM modules
+      WHERE id = ?
+    `;
+    const [result] = await db.execute(deleteQuery, [moduleId]);
+
+    if (result.affectedRows === 0) {
+      throw new Error("Module not found or already deleted");
+    }
+
+    return { success: true, message: "Module deleted successfully" };
+  } catch (error) {
+    console.error("Error deleting module:", error);
+    throw new Error("Failed to delete module.");
+  }
+}
 
 
 

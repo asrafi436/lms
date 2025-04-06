@@ -1,4 +1,5 @@
 // queries\courses.js
+'use server'
 
 import { createConnection } from "@/lib/db";
 
@@ -209,3 +210,50 @@ export async function updateCourseThumbnail(courseId, thumbnail) {
   }
 }
 
+
+
+// Function to change course publish state (active/unpublished)
+export async function changeCourseStateInDB(courseId, newState) {
+  try {
+    const db = await createConnection();
+    const query = `
+      UPDATE courses
+      SET active = ?
+      WHERE id = ?
+    `;
+    const [result] = await db.execute(query, [newState, courseId]);
+
+    if (result.affectedRows === 0) {
+      throw new Error("Course not found or already in the requested state.");
+    }
+
+    // Get the updated status from the database to return
+    const [rows] = await db.execute("SELECT active FROM courses WHERE id = ?", [courseId]);
+    return rows[0].active;  // Return 0 or 1 based on the updated status
+  } catch (error) {
+    console.error("Error updating course publish state:", error);
+    throw new Error("Database update failed");
+  }
+}
+
+// Function to delete a course
+export async function deleteFromDB(courseId) {
+  try {
+    if (!courseId) {
+      throw new Error("Course ID is required");
+    }
+
+    const db = await createConnection();
+    const query = `DELETE FROM courses WHERE id = ?`;
+    const [result] = await db.execute(query, [courseId]);
+
+    if (result.affectedRows === 0) {
+      throw new Error("Course not found or already deleted");
+    }
+
+    return { success: true, message: "Course deleted successfully" };
+  } catch (error) {
+    console.error("Error deleting course:", error);
+    throw new Error("Failed to delete course.");
+  }
+}
