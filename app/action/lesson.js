@@ -1,7 +1,10 @@
 "use server";
 
 import { v4 as uuidv4 } from "uuid";
-import { updateLessonTitle, createLesson, updateLessonOrder, updateLessonDescription, updateLessonAccess, updateLessonVideoUrlAndDuration } from "@/queries/lessons";
+import {
+  updateLessonTitle, createLesson, updateLessonOrder, updateLessonDescription,
+  updateLessonAccess, updateLessonVideoUrlAndDuration, getLessonByLessonId, changeLessonPublishState, deleteLessons
+} from "@/queries/lessons";
 
 // Update the title of a lesson
 
@@ -93,15 +96,38 @@ export async function updateVideoUrl(lessonId, newVideoUrl, newDuration) {
   try {
     // Call the function to update the video URL and duration in the database
     const success = await updateLessonVideoUrlAndDuration(lessonId, newVideoUrl, newDuration);
-    
+
     if (!success) {
       throw new Error("Failed to update lesson video URL and duration");
     }
-    
+
     return { success: true, message: "Lesson video URL and duration updated successfully" };
   } catch (error) {
     return { success: false, message: error.message };
   }
 }
+
+
+// actions/lesson.js
+export async function changePublishState(lessonId, newPublishedState) {
+  try {
+    const actualState = await changeLessonPublishState(lessonId, newPublishedState);
+    return actualState;
+  } catch (error) {
+    console.error("Error changing publish state:", error);
+    throw new Error(error.message || "Failed to change publish state");
+  }
+}
+
+
+export async function deleteLesson(lessonId) {
+  try {
+    const res = await deleteLessons(lessonId);
+
+  } catch (err) {
+    throw new Error(err);
+  }
+}
+
 
 

@@ -38,7 +38,7 @@ const Module = async ({ params }) => {
         />
       )}
 
-      <div className="p-6">
+      <div className="p-6 bg-white">
         <div className="flex items-center justify-between">
           <div className="w-full">
             <Link

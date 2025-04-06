@@ -12,7 +12,6 @@ const EnrollmentsPage = async ({ params }) => {
   try {
     const response = await getEnrollmentsData(courseId); // Fetch enrollment data based on courseId
     enrollments = response.enrollments; // Get the data from the response
-
   } catch (error) {
     console.error("Error fetching enrollments data:", error);
     // Optionally handle error (e.g., show an error message to the user)
@@ -21,7 +20,12 @@ const EnrollmentsPage = async ({ params }) => {
   return (
     <div className="p-6">
       <h2>Enrollments for Course ID: {courseId}</h2>
-      <DataTable columns={columns} data={enrollments} />
+
+      {enrollments && enrollments.length > 0 ? (
+        <DataTable columns={columns} data={enrollments} />
+      ) : (
+        <p>No enrollments found.</p> // Show this message if no enrollments
+      )}
     </div>
   );
 };

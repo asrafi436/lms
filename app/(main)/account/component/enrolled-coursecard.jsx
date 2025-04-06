@@ -16,10 +16,10 @@ const EnrolledCourseCard = ({ enrollment }) => {
     } = enrollment;
 
     // Assuming module data in course_modules (stringified JSON) and parsing it
-    const modules = JSON.parse(course_modules);
+    const modules = JSON?.parse(course_modules);
     
     // Get total modules and completed modules (hardcoded for now, adjust as needed)
-    const totalModules = modules.length;
+    const totalModules = modules?.length;
     const completedModules = 5; // Hardcoded for now, replace with actual data (e.g. from report)
 
     // Get total quizzes (assuming quiz data is available in the course_testimonials)

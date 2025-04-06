@@ -245,6 +245,65 @@ export async function updateLessonVideoUrlAndDuration(lessonId, newVideoUrl, new
   }
 }
 
+// queries/lessons.js
+export async function changeLessonPublishState(lessonId, newState) {
+  try {
+    const db = await createConnection();
+
+    const updateQuery = `
+      UPDATE lessons
+      SET published = ?
+      WHERE id = ?
+    `;
+    const [updateResult] = await db.execute(updateQuery, [newState, lessonId]);
+
+    if (updateResult.affectedRows === 0) {
+      throw new Error("Lesson not found or already in that state.");
+    }
+
+    const [rows] = await db.execute("SELECT published FROM lessons WHERE id = ?", [lessonId]);
+    if (!rows.length) {
+      throw new Error("Failed to fetch updated lesson.");
+    }
+
+    return rows[0].published;
+  } catch (error) {
+    console.error("Error updating lesson publish state:", error);
+    throw new Error("Database update failed");
+  }
+}
+
+
+
+
+
+export async function deleteLessons(lessonId) {
+  try {
+    if (!lessonId) {
+      throw new Error("Lesson ID is required");
+    }
+
+    const db = await createConnection();
+
+    // Query to delete a lesson by its ID
+    const query = `
+      DELETE FROM lessons
+      WHERE id = ?
+    `;
+    const [result] = await db.execute(query, [lessonId]);
+
+    // Check if any rows were affected (i.e., if the lesson was deleted)
+    if (result.affectedRows === 0) {
+      throw new Error("Lesson not found or already deleted");
+    }
+
+    return { success: true, message: "Lesson deleted successfully" };
+  } catch (error) {
+    console.error("Error deleting lesson:", error);
+    throw new Error("Failed to delete lesson.");
+  }
+}
+
 
 
 

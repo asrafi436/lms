@@ -5,32 +5,24 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
-import { LayoutDashboard } from "lucide-react";
-import { Eye } from "lucide-react";
-import { Video } from "lucide-react";
-import { ArrowLeft } from "lucide-react";
+import { LayoutDashboard, Eye, Video, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { LessonTitleForm } from "./lesson-title-form";
 import { LessonDescriptionForm } from "./lesson-description-form";
 import { LessonAccessForm } from "./lesson-access-form";
 import { VideoUrlForm } from "./video-url-form";
-import { CourseActions } from "../../../_components/course-action";
+import { LessonActions } from "./lesson-action";
 
+export const LessonModal = ({ open, setOpen, courseId, lesson, moduleId, onclose }) => {
 
-
-
-
-
-export const LessonModal = ({ open, setOpen,courseId,lesson }) => {
-
-  
-
+  const postDelete = () => {
+    setOpen(false);  // Close the modal after delete
+    onclose();  // Ensure the parent component knows the modal is closed
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      {/* <DialogTrigger>Open</DialogTrigger> */}
       <DialogContent
         className="bg-white sm:max-w-[1200px] w-[96%] overflow-y-auto max-h-[90vh]"
         onInteractOutside={(e) => {
@@ -38,12 +30,12 @@ export const LessonModal = ({ open, setOpen,courseId,lesson }) => {
         }}
       >
         <DialogHeader>
-           <DialogTitle>Lesson Editor</DialogTitle>
-           <DialogDescription>
-             Customize and manage the settings for this lesson.
-           </DialogDescription>
-         </DialogHeader>
- 
+          <DialogTitle>Lesson Editor</DialogTitle>
+          <DialogDescription>
+            Customize and manage the settings for this lesson.
+          </DialogDescription>
+        </DialogHeader>
+
         <div>
           <div className="flex items-center justify-between">
             <div className="w-full">
@@ -55,7 +47,12 @@ export const LessonModal = ({ open, setOpen,courseId,lesson }) => {
                 Back to course setup
               </Link>
               <div className="flex items-center justify-end">
-                <CourseActions />
+                <LessonActions
+                  lesson={lesson}
+                  courseId={courseId}
+                  moduleId={moduleId}
+                  onDelete={postDelete}  // Trigger postDelete after successful delete
+                />
               </div>
             </div>
           </div>
@@ -67,12 +64,12 @@ export const LessonModal = ({ open, setOpen,courseId,lesson }) => {
                   <h2 className="text-xl">Customize Your chapter</h2>
                 </div>
                 <LessonTitleForm
-                   initialData={{title: lesson?.title}}
-                   courseId={courseId}
-                   lessonId={lesson?.id}
+                  initialData={{ title: lesson?.title }}
+                  courseId={courseId}
+                  lessonId={lesson?.id}
                 />
                 <LessonDescriptionForm
-                  initialData={{description: lesson?.description}}
+                  initialData={{ description: lesson?.description }}
                   courseId={courseId}
                   lessonId={lesson?.id}
                 />
@@ -83,7 +80,7 @@ export const LessonModal = ({ open, setOpen,courseId,lesson }) => {
                   <h2 className="text-xl">Access Settings</h2>
                 </div>
                 <LessonAccessForm
-                  initialData={{access: lesson?.access}}
+                  initialData={{ access: lesson?.access }}
                   courseId={courseId}
                   lessonId={lesson?.id}
                 />

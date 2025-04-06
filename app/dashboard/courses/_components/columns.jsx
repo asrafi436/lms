@@ -83,7 +83,7 @@ export const columns = [
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+          <DropdownMenuContent align="end" className="bg-white">
             <Link href={`/dashboard/courses/${id}`}>
               <DropdownMenuItem className="cursor-pointer">
                 <Pencil className="h-4 w-4 mr-2" />
