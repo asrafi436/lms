@@ -3,8 +3,11 @@
 
 "use server"
  import { updateQSTitles } from "@/queries/quizzes-modelq";
- import { createQuizWithQuizset, deleteSingleQuizFromDB } from "@/queries/quizzes-modelq";
+ import { createQuizWithQuizset, deleteSingleQuizFromDB, updateQSPublishState,
+  createQuizSet,deleteQuizset } from "@/queries/quizzes-modelq";
  import { v4 as uuidv4 } from "uuid";
+ import { getLoggedInUser } from "@/lib/loggedin-user";
+
  
  
  export async function updateQSTitle(quizset, dataToUpdate) {
@@ -20,6 +23,35 @@
   }
   
 
+export async function createQuizSetAction(data) {
+    try {
+      const loggedinUser = await getLoggedInUser();
+  
+      const newQuizSet = {
+        id: data.id,
+        title: data.title,
+        instructor_id: loggedinUser?.id, // Set instructor_id from logged-in user
+      };
+  
+      const quizSet = await createQuizSet(newQuizSet);
+      return quizSet;
+    } catch (error) {
+      console.error("Quiz set creation failed:", error);
+      throw new Error("Failed to create quiz set.");
+    }
+  }
+
+
+  
+  export async function deleteQuizsetById(quizsetId) {
+    try {
+      const res = await deleteQuizset(quizsetId);
+      return res;
+    } catch (err) {
+      throw new Error(err);
+    }
+  }
+  
  
 
 export async function createQuiz(data, quizSetId) {
@@ -62,4 +94,16 @@ export async function deleteSingleQuiz(quizSetId, quizId) {
     throw new Error("Quiz deletion failed."); // this is what toast sees
   }
 }
+
+export async function changeQuizPublishState(quizSetId) {
+  try {
+    const quiz = await updateQSPublishState(quizSetId);
+    return quiz;
+  } catch (error) {
+    console.error("Failed to change quiz publish state:", error);
+    throw new Error("Publish state change failed."); // this is what toast sees
+  }
+}
+
+
   

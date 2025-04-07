@@ -49,14 +49,14 @@
  
      return (
      <form onSubmit={handleSubmit}>
-      <Button
+      {/* <Button
        variant="ghost"
        size="sm"
        onClick={() => setAction("edit-quiz")}
        disabled={loading}
          >
       <Pencil className="w-3 mr-1" /> Edit
-         </Button>
+         </Button> */}
       <Button
        className="text-destructive"
        variant="ghost"

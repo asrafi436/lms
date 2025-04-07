@@ -20,7 +20,7 @@ const QuizSets = () => {
   const mappedQuizSets = quizsets.map(q => ({
     id: q.id,
     title: q.title,
-    isPublished: q.status === "active", // assuming 'status' is 'active' or not
+    isPublished: q.status, // assuming 'status' is 'active' or not
     totalQuiz: q.quizzes?.length || 0,   // use `quizzes` instead of `quizIds`
   }));
 

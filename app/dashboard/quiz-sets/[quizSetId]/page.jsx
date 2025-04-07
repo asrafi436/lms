@@ -15,61 +15,77 @@ import { QuizCardActions } from "./_components/quiz-card-action";
 const EditQuizSet = () => {
   const { quizSetId } = useParams();
 
-  const [quizes, setQuizes] = useState([]); // Start with an empty array
-  const [quizeSet, setQuizeSet] = useState([]);
+  // Initialize state
+  const [quizes, setQuizes] = useState([]); // Array of quizzes
+  const [quizeSet, setQuizeSet] = useState(null); // Full quiz set object
+  const [loading, setLoading] = useState(true); // For loading state
 
   useEffect(() => {
     const fetchData = async () => {
+      if (!quizSetId) {
+        return; // Handle if quizSetId is missing
+      }
+
       try {
+        setLoading(true);
         const result = await getQuizsetWithQuizzesById(quizSetId);
         console.log("Fetched quiz set:", result);  // Check the result structure
 
         // Safely update quizzes after transformation
         if (result?.quizzes) {
-          const transformedQuizzes = result.quizzes.map((quiz) => {
-            return {
-              id: quiz.id.toString(),
-              title: quiz.question, // Assuming question is the title
-              options: Object.values(quiz.options).map(option => ({
-                label: option.text,
-                isTrue: option.is_correct
-              }))
-            };
-          });
+          const transformedQuizzes = result.quizzes.map((quiz) => ({
+            id: quiz.id.toString(),
+            title: quiz.question, // Assuming question is the title
+            options: Object.values(quiz.options).map(option => ({
+              label: option.text,
+              isTrue: option.is_correct
+            }))
+          }));
+
           setQuizes(transformedQuizzes);
-          setQuizeSet(result)  // Update the state with transformed quizzes
+          setQuizeSet(result);  // Update the state with the full quiz set
         }
       } catch (err) {
         console.error("Failed to fetch quizset with quizzes:", err);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchData();
   }, [quizSetId]);
 
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <>
-      <AlertBanner
-        label="This course is unpublished. It will not be visible in the course."
-        variant="warning"
-      />
+      {/* Alert for unpublished quiz set */}
+      {!quizeSet?.status && quizeSet?.status !== undefined && (
+        <AlertBanner
+          label="This Quiz is unpublished. It will not be visible in the course."
+          variant="warning"
+        />
+      )}
+
       <div className="p-6">
         <div className="flex items-center justify-end">
-          <QuizSetAction />
+          <QuizSetAction quizSetId={quizSetId} quizeSetStatus={quizeSet?.status} quizId={quizeSet?.id} />
         </div>
+        
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-16">
           {/* Quiz List */}
           <div className="max-lg:order-2">
             <h2 className="text-xl mb-6">Quiz List</h2>
-            {
-              quizes.length === 0 && (
-                <AlertBanner
-                  label="No Quiz are in the set, add some using the form above."
-                  variant="warning"
-                  className="rounded mb-6"
-                />
-              )
-            }
+            {quizes.length === 0 && (
+              <AlertBanner
+                label="No Quiz are in the set, add some using the form above."
+                variant="warning"
+                className="rounded mb-6"
+              />
+            )}
+
             <div className="space-y-6">
               {quizes.map((quiz) => (
                 <div
@@ -99,7 +115,6 @@ const EditQuizSet = () => {
                   <div className="flex items-center justify-end gap-2 mt-6">
                     <QuizCardActions quiz={quiz} quizSetId={quizSetId} />
                   </div>
-
                 </div>
               ))}
             </div>
@@ -110,10 +125,9 @@ const EditQuizSet = () => {
             <div className="flex items-center gap-x-2">
               <h2 className="text-xl">Customize your quiz set</h2>
             </div>
+
             <div className="max-w-[800px]">
-              <TitleForm
-                initialData={{ title: quizeSet.title }} quizSetId={quizSetId}
-              />
+              <TitleForm initialData={{ title: quizeSet?.title || "" }} quizSetId={quizSetId} />
             </div>
 
             <div className="max-w-[800px]">

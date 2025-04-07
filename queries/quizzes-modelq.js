@@ -51,6 +51,33 @@ export async function getQuizzes() {
     }
 }
 
+export async function createQuizSet(quizSetData) {
+  try {
+    const db = await createConnection(); // Get a DB connection
+
+    const query = `
+      INSERT INTO quizsets (
+        id,
+        title,
+        instructor_id
+      ) VALUES (?, ?, ?)
+    `;
+
+    const values = [
+      quizSetData.id,
+      quizSetData.title,
+      quizSetData.instructor_id
+    ];
+
+    const [result] = await db.execute(query, values);
+    return { id: quizSetData.id, ...quizSetData }; // Return inserted quizSet
+  } catch (error) {
+    console.error("Error inserting quiz set:", error);
+    throw new Error("Quiz set insert failed");
+  }
+}
+
+
 
 
 export async function updateQSTitles(quizsetId, dataToUpdate) {
@@ -73,6 +100,34 @@ export async function updateQSTitles(quizsetId, dataToUpdate) {
         throw new Error("Failed to update quiz set title.");
     }
 }
+
+export async function deleteQuizset(quizsetId) {
+  try {
+    if (!quizsetId) {
+      throw new Error("Quizset ID is required");
+    }
+
+    const db = await createConnection();
+
+    // Query to delete a quizset by its ID
+    const query = `
+      DELETE FROM quizsets
+      WHERE id = ?
+    `;
+    const [result] = await db.execute(query, [quizsetId]);
+
+    // Check if any rows were affected (i.e., if the quizset was deleted)
+    if (result.affectedRows === 0) {
+      throw new Error("Quizset not found or already deleted");
+    }
+
+    return { success: true, message: "Quizset deleted successfully" };
+  } catch (error) {
+    console.error("Error deleting quizset:", error);
+    throw new Error("Failed to delete quizset.");
+  }
+}
+
 
 
 
@@ -136,14 +191,6 @@ export async function deleteSingleQuizFromDB(quizSetId, quizId) {
   const db = await createConnection();
 
   try {
-    // Delete from `quizset_quizzes` table first
-    // const deleteQuizsetQuizQuery = `
-    //   DELETE FROM quizset_quizzes
-    //   WHERE quizset_id = ? AND quiz_id = ?
-    // `;
-    // await db.execute(deleteQuizsetQuizQuery, [quizSetId, quizId]);
-
-    // Then delete from `quizzes` table
     const deleteQuizQuery = `
       DELETE FROM quizzes
       WHERE id = ?
@@ -154,5 +201,44 @@ export async function deleteSingleQuizFromDB(quizSetId, quizId) {
   } catch (error) {
     console.error("Error deleting quiz:", error);
     throw new Error("Failed to delete quiz.");
+  }
+}
+
+
+export async function updateQSPublishState(quizsetId) {
+  try {
+    const db = await createConnection();
+
+    const updateQuery = `
+      UPDATE quizsets
+      SET status = CASE 
+                    WHEN status = 1 THEN 0
+                    WHEN status = 0 THEN 1
+                  END
+      WHERE id = ?
+    `;
+    
+    // Execute the update query
+    const [updateResult] = await db.execute(updateQuery, [quizsetId]);
+
+    // If no rows were affected, that means the quizset ID was not found
+    if (updateResult.affectedRows === 0) {
+      throw new Error("Quizset not found or already in the desired state.");
+    }
+
+    // Fetch the updated state to confirm the change
+    const [rows] = await db.execute("SELECT status FROM quizsets WHERE id = ?", [quizsetId]);
+    
+    // If no rows are returned, it means the quizset was not found
+    if (!rows.length) {
+      throw new Error("Failed to fetch updated quizset.");
+    }
+
+    // Return the updated status
+    return rows[0].status;
+
+  } catch (error) {
+    console.error("Error updating quizset publish state:", error);
+    throw new Error("Database update failed");
   }
 }
