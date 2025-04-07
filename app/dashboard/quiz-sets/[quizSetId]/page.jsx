@@ -1,66 +1,52 @@
 "use client";
+import { useEffect, useState } from "react";
 import AlertBanner from "@/components/alert-banner";
 import { IconBadge } from "@/components/icon-badge";
-import { LayoutDashboard } from "lucide-react";
+import { LayoutDashboard, Pencil, Delete, Trash, CircleCheck, Circle } from "lucide-react";
 import { QuizSetAction } from "./_components/quiz-set-action";
 import { TitleForm } from "./_components/title-form";
 import { AddQuizForm } from "./_components/add-quiz-form";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
-import { Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Delete } from "lucide-react";
-import { Trash } from "lucide-react";
-import { CircleCheck } from "lucide-react";
-import { Circle } from "lucide-react";
-const initialQuizes = [
-  {
-    id: 1,
-    title: "What is HTML ?",
-    options: [
-      {
-        label: "A programming language",
-        isTrue: false,
-      },
-      {
-        label: "A markup language",
-        isTrue: true,
-      },
-      {
-        label: "A famous book",
-        isTrue: false,
-      },
-      {
-        label: "A famous tv show",
-        isTrue: false,
-      },
-    ],
-  },
-  {
-    id: 2,
-    title: "What is Javascript ?",
-    options: [
-      {
-        label: "A programming language",
-        isTrue: true,
-      },
-      {
-        label: "A markup language",
-        isTrue: false,
-      },
-      {
-        label: "A famous book",
-        isTrue: false,
-      },
-      {
-        label: "A famous tv show",
-        isTrue: false,
-      },
-    ],
-  },
-];
+import { getQuizsetWithQuizzesById } from "@/app/action/combainQuizset";
+import { useParams } from "next/navigation";
+import { QuizCardActions } from "./_components/quiz-card-action";
+
 const EditQuizSet = () => {
-  const [quizes, setQuizes] = useState(initialQuizes);
+  const { quizSetId } = useParams();
+
+  const [quizes, setQuizes] = useState([]); // Start with an empty array
+  const [quizeSet, setQuizeSet] = useState([]); 
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const result = await getQuizsetWithQuizzesById(quizSetId);
+        console.log("Fetched quiz set:", result);  // Check the result structure
+
+        // Safely update quizzes after transformation
+        if (result?.quizzes) {
+          const transformedQuizzes = result.quizzes.map((quiz) => {
+            return {
+              id: quiz.id.toString(),
+              title: quiz.question, // Assuming question is the title
+              options: Object.values(quiz.options).map(option => ({
+                label: option.text,
+                isTrue: option.is_correct
+              }))
+            };
+          });
+          setQuizes(transformedQuizzes);
+          setQuizeSet(result)  // Update the state with transformed quizzes
+        }
+      } catch (err) {
+        console.error("Failed to fetch quizset with quizzes:", err);
+      }
+    };
+
+    fetchData();
+  }, [quizSetId]);
+
   return (
     <>
       <AlertBanner
@@ -71,7 +57,7 @@ const EditQuizSet = () => {
         <div className="flex items-center justify-end">
           <QuizSetAction />
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2  gap-6 mt-16">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-16">
           {/* Quiz List */}
           <div className="max-lg:order-2">
             <h2 className="text-xl mb-6">Quiz List</h2>
@@ -81,66 +67,53 @@ const EditQuizSet = () => {
               className="rounded mb-6"
             />
             <div className="space-y-6">
-              {quizes.map((quiz) => {
-                return (
-                  <div
-                    key={quiz.id}
-                    className=" bg-gray-50 shadow-md p-4 lg:p-6 rounded-md border"
-                  >
-                    <h2 className="mb-3">{quiz.title}</h2>
+              {quizes.map((quiz) => (
+                <div
+                  key={quiz.id}
+                  className="bg-gray-50 shadow-md p-4 lg:p-6 rounded-md border"
+                >
+                  <h2 className="mb-3">{quiz.title}</h2>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {quiz.options.map((option) => {
-                        return (
-                          <div
-                            className={cn(
-                              "py-1.5 rounded-sm  text-sm flex items-center gap-1 text-gray-600"
-                            )}
-                            key={option.label}
-                          >
-                            {option.isTrue ? (
-                              <CircleCheck className="size-4 text-emerald-500 " />
-                            ) : (
-                              <Circle className="size-4" />
-                            )}
-
-                            <p>{option.label}</p>
-                          </div>
-                        );
-                      })}
-                    </div>
-                    <div className="flex items-center justify-end gap-2 mt-6">
-                      <Button variant="ghost" size="sm">
-                        <Pencil className="w-3 mr-1" /> Edit
-                      </Button>
-                      <Button
-                        size="sm"
-                        className="text-destructive"
-                        variant="ghost"
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {quiz.options.map((option) => (
+                      <div
+                        className={cn(
+                          "py-1.5 rounded-sm text-sm flex items-center gap-1 text-gray-600"
+                        )}
+                        key={option.label}
                       >
-                        <Trash className="w-3 mr-1" /> Delete
-                      </Button>
-                    </div>
+                        {option.isTrue ? (
+                          <CircleCheck className="size-4 text-emerald-500" />
+                        ) : (
+                          <Circle className="size-4" />
+                        )}
+                        <p>{option.label}</p>
+                      </div>
+                    ))}
                   </div>
-                );
-              })}
+
+                  <div className="flex items-center justify-end gap-2 mt-6">
+                  <QuizCardActions quiz={quiz} quizSetId={quizSetId} /> 
+                  </div>
+
+                </div>
+              ))}
             </div>
           </div>
-          {/*  */}
+
+          {/* Right Side Panel */}
           <div>
             <div className="flex items-center gap-x-2">
               <h2 className="text-xl">Customize your quiz set</h2>
             </div>
             <div className="max-w-[800px]">
               <TitleForm
-                initialData={{
-                  title: "Reactive Accelerator",
-                }}
+                 initialData={{ title: quizeSet.title  }} quizSetId={quizSetId}
               />
             </div>
 
             <div className="max-w-[800px]">
-              <AddQuizForm setQuizes={setQuizes} />
+              <AddQuizForm setQuizes={setQuizes} quizSetId={quizSetId}/>
             </div>
           </div>
         </div>
@@ -148,4 +121,5 @@ const EditQuizSet = () => {
     </>
   );
 };
+
 export default EditQuizSet;

@@ -1,19 +1,11 @@
 "use client";
 
 import * as z from "zod";
-// import axios from "axios";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import {Form,FormControl,FormField,FormItem,FormLabel,FormMessage} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
@@ -22,6 +14,7 @@ import { useRouter } from "next/navigation";
 import { PlusCircle } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
+import { createQuiz } from "@/app/action/quize";
 
 const formSchema = z.object({
   title: z
@@ -80,7 +73,7 @@ const formSchema = z.object({
   }),
 });
 
-export const AddQuizForm = ({ setQuizes }) => {
+export const AddQuizForm = ({ setQuizes, quizSetId }) => {
   const router = useRouter();
 
   const form = useForm({
@@ -146,10 +139,11 @@ export const AddQuizForm = ({ setQuizes }) => {
           isTrue: false,
         },
       });
-      toggleEdit();
+      const quiz = await createQuiz(values, quizSetId);
+      // toggleEdit();
       router.refresh();
     } catch (error) {
-      toast.error("Something went wrong");
+      toast.error(error?.message || "Something went wrong");
     }
   };
 

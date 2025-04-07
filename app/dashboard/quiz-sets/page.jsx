@@ -1,26 +1,34 @@
+'use client';
+
+import { useEffect, useState } from "react";
 import { columns } from "./_components/columns";
 import { DataTable } from "./_components/data-table";
+import { getCombinedQuizsets } from "@/app/action/combainQuizset";
 
-const quizSets = [
-  {
-    id: 1,
-    title: "Reactive Accelerator",
-    isPublished: true,
-    totalQuiz: 10,
-    quizes: [],
-  },
-  {
-    id: 2,
-    title: "Think In A Redux Way",
-    isPublished: false,
-    totalQuiz: 50,
-    quizes: [],
-  },
-];
-const QuizSets = async () => {
+const QuizSets = () => {
+  const [quizsets, setQuizsets] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await getCombinedQuizsets();
+      setQuizsets(data);
+    };
+
+    fetchData();
+  }, []);
+
+  const mappedQuizSets = quizsets.map(q => ({
+    id: q.id,
+    title: q.title,
+    isPublished: q.status === "active", // assuming 'status' is 'active' or not
+    totalQuiz: q.quizzes?.length || 0,   // use `quizzes` instead of `quizIds`
+  }));
+
+  console.log(mappedQuizSets);
+
   return (
     <div className="p-6">
-      <DataTable columns={columns} data={quizSets} />
+      <DataTable columns={columns} data={mappedQuizSets} />
     </div>
   );
 };

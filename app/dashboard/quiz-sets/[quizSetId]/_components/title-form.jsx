@@ -1,7 +1,6 @@
 "use client";
 
 import * as z from "zod";
-// import axios from "axios";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
@@ -15,8 +14,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { updateQSTitle } from "@/app/action/quize";
+import { toast } from "sonner";
 
 const formSchema = z.object({
   title: z.string().min(1, {
@@ -24,7 +25,7 @@ const formSchema = z.object({
   }),
 });
 
-export const TitleForm = ({ initialData = {} }) => {
+export const TitleForm = ({ initialData = {}, quizSetId }) => {
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
 
@@ -32,17 +33,36 @@ export const TitleForm = ({ initialData = {} }) => {
 
   const form = useForm({
     resolver: zodResolver(formSchema),
-    defaultValues: initialData,
+    defaultValues: {
+      title: initialData.title || "",
+    },
   });
+
+  // Update form values when initialData changes (optional for SSR hydration)
+  useEffect(() => {
+    form.reset({
+      title: initialData.title || "",
+    });
+  }, [initialData, form]);
 
   const { isSubmitting, isValid } = form.formState;
 
   const onSubmit = async (values) => {
     try {
+      // Make the update request to the server
+      await updateQSTitle(quizSetId, values);
+      
+      // Notify the user of success
+      toast.success("Quiz set title updated!");
+      
+      // Close the editing mode
       toggleEdit();
+      
+      // Refresh the page to show updated title
       router.refresh();
     } catch (error) {
-      toast.error("Something went wrong");
+      console.error("Error updating title:", error); // Debugging
+      toast.error(error?.message || "Something went wrong");
     }
   };
 
@@ -61,7 +81,13 @@ export const TitleForm = ({ initialData = {} }) => {
           )}
         </Button>
       </div>
-      {!isEditing && <p className="text-sm mt-2">{initialData.title}</p>}
+
+      {!isEditing && (
+        <p className="text-sm mt-2 text-muted-foreground">
+          {initialData.title}
+        </p>
+      )}
+
       {isEditing && (
         <Form {...form}>
           <form
@@ -76,7 +102,7 @@ export const TitleForm = ({ initialData = {} }) => {
                   <FormControl>
                     <Input
                       disabled={isSubmitting}
-                      placeholder="e.g. 'Advanced web development'"
+                      placeholder="e.g. 'Advanced Web Development'"
                       {...field}
                     />
                   </FormControl>
