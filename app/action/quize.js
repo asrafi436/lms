@@ -3,7 +3,7 @@
 
 "use server"
  import { updateQSTitles } from "@/queries/quizzes-modelq";
- import { createQuizWithQuizset } from "@/queries/quizzes-modelq";
+ import { createQuizWithQuizset, deleteSingleQuizFromDB } from "@/queries/quizzes-modelq";
  import { v4 as uuidv4 } from "uuid";
  
  
@@ -52,4 +52,14 @@ export async function createQuiz(data, quizSetId) {
   }
 }
 
+
+export async function deleteSingleQuiz(quizSetId, quizId) {
+  try {
+    const quiz = await deleteSingleQuizFromDB(quizSetId, quizId);
+    return quiz;
+  } catch (error) {
+    console.error("Failed to delete quiz:", error);
+    throw new Error("Quiz deletion failed."); // this is what toast sees
+  }
+}
   

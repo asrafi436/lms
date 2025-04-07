@@ -16,7 +16,7 @@ const EditQuizSet = () => {
   const { quizSetId } = useParams();
 
   const [quizes, setQuizes] = useState([]); // Start with an empty array
-  const [quizeSet, setQuizeSet] = useState([]); 
+  const [quizeSet, setQuizeSet] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -61,11 +61,15 @@ const EditQuizSet = () => {
           {/* Quiz List */}
           <div className="max-lg:order-2">
             <h2 className="text-xl mb-6">Quiz List</h2>
-            <AlertBanner
-              label="No Quiz are in the set, add some using the form above."
-              variant="warning"
-              className="rounded mb-6"
-            />
+            {
+              quizes.length === 0 && (
+                <AlertBanner
+                  label="No Quiz are in the set, add some using the form above."
+                  variant="warning"
+                  className="rounded mb-6"
+                />
+              )
+            }
             <div className="space-y-6">
               {quizes.map((quiz) => (
                 <div
@@ -93,7 +97,7 @@ const EditQuizSet = () => {
                   </div>
 
                   <div className="flex items-center justify-end gap-2 mt-6">
-                  <QuizCardActions quiz={quiz} quizSetId={quizSetId} /> 
+                    <QuizCardActions quiz={quiz} quizSetId={quizSetId} />
                   </div>
 
                 </div>
@@ -108,12 +112,12 @@ const EditQuizSet = () => {
             </div>
             <div className="max-w-[800px]">
               <TitleForm
-                 initialData={{ title: quizeSet.title  }} quizSetId={quizSetId}
+                initialData={{ title: quizeSet.title }} quizSetId={quizSetId}
               />
             </div>
 
             <div className="max-w-[800px]">
-              <AddQuizForm setQuizes={setQuizes} quizSetId={quizSetId}/>
+              <AddQuizForm setQuizes={setQuizes} quizSetId={quizSetId} />
             </div>
           </div>
         </div>

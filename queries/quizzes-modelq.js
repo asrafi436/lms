@@ -1,6 +1,8 @@
 'use server';
 
 import { createConnection } from "@/lib/db";
+import { v4 as uuidv4 } from "uuid";
+
 
 export async function getQuizzes() {
     try {
@@ -73,7 +75,6 @@ export async function updateQSTitles(quizsetId, dataToUpdate) {
 }
 
 
-import { v4 as uuidv4 } from "uuid";
 
 // Insert into both `quizzes` and `quizset_quizzes`
 export async function createQuizWithQuizset(quizData) {
@@ -128,5 +129,30 @@ export async function createQuizWithQuizset(quizData) {
   } catch (error) {
     console.error("Error inserting quiz and quizset relation:", error);
     throw new Error("Database insert failed");
+  }
+}
+
+export async function deleteSingleQuizFromDB(quizSetId, quizId) {
+  const db = await createConnection();
+
+  try {
+    // Delete from `quizset_quizzes` table first
+    // const deleteQuizsetQuizQuery = `
+    //   DELETE FROM quizset_quizzes
+    //   WHERE quizset_id = ? AND quiz_id = ?
+    // `;
+    // await db.execute(deleteQuizsetQuizQuery, [quizSetId, quizId]);
+
+    // Then delete from `quizzes` table
+    const deleteQuizQuery = `
+      DELETE FROM quizzes
+      WHERE id = ?
+    `;
+    await db.execute(deleteQuizQuery, [quizId]);
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error deleting quiz:", error);
+    throw new Error("Failed to delete quiz.");
   }
 }

@@ -5,6 +5,10 @@
  import { Delete } from "lucide-react";
  import { Trash } from "lucide-react";
  import { useRouter } from 'next/navigation';
+ import { toast } from 'sonner';
+ import { deleteSingleQuiz } from '@/app/action/quize';
+
+
  
  export const QuizCardActions = ({quiz,quizSetId}) => {
  
@@ -13,9 +17,34 @@
      const router = useRouter();
  
      async function handleSubmit(event) {
-         event.preventDefault();
-         console.log(action);
-     }
+        event.preventDefault();
+        try {
+            setLoading(true);
+    
+        switch (action) {
+            case "edit-quiz": {
+                // Redirect to the edit quiz page
+                console.log(`Edting quiz: ${quiz.id} in quiz set: ${quizSetId} `)
+                break;
+            }
+            case "delete-quiz": {
+    
+                await deleteSingleQuiz(quizSetId, quiz.id);
+                toast.success("Quiz has been deleted");
+                router.refresh();
+                break; 
+            } 
+            default:{
+                throw new Error("Invalid Action");
+            }    
+         } 
+        } catch (e) {
+            toast.error(`Error: ${e.message}`);
+        }finally {
+            setLoading(false);
+        } 
+    }
+    
  
  
      return (
