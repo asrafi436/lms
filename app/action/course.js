@@ -19,9 +19,9 @@ export async function createCourse(data) {
             price: 0,
             active: 0,
             category_id: null,
-            quizset_id: null,
+            quizset_id: "02c4d723c4af4001acc62fe4",
             subtitle: null,
-            learning: null,
+            learning: "not updated yeat., See the course.",
             instructor_id: loggedinUser?.id, // Assign instructor
             created_on: new Date(), // Add timestamps
             modified_on: new Date(),
