@@ -2,57 +2,61 @@
 
 
 "use server"
- import { updateQSTitles } from "@/queries/quizzes-modelq";
- import { createQuizWithQuizset, deleteSingleQuizFromDB, updateQSPublishState,
-  createQuizSet,deleteQuizset } from "@/queries/quizzes-modelq";
- import { v4 as uuidv4 } from "uuid";
- import { getLoggedInUser } from "@/lib/loggedin-user";
+import { updateQSTitles } from "@/queries/quizzes-modelq";
+import {
+  createQuizWithQuizset, deleteSingleQuizFromDB, updateQSPublishState,
+  createQuizSet, deleteQuizset, getCourseQuizsets, updateCourseQuizsetId
+} from "@/queries/quizzes-modelq";
+import { getCourseDetails } from "@/queries/courses";
 
- 
- 
- export async function updateQSTitle(quizset, dataToUpdate) {
-    try {
-      const result = await updateQSTitles(quizset, dataToUpdate);
-      
-      // Fix serialization issue for Client Components
-      return JSON.parse(JSON.stringify(result));
-    } catch (error) {
-      console.error("Failed to update quiz set title:", error);
-      throw error;
-    }
+import { v4 as uuidv4 } from "uuid";
+import { getLoggedInUser } from "@/lib/loggedin-user";
+
+
+
+export async function updateQSTitle(quizset, dataToUpdate) {
+  try {
+    const result = await updateQSTitles(quizset, dataToUpdate);
+
+    // Fix serialization issue for Client Components
+    return JSON.parse(JSON.stringify(result));
+  } catch (error) {
+    console.error("Failed to update quiz set title:", error);
+    throw error;
   }
-  
+}
+
 
 export async function createQuizSetAction(data) {
-    try {
-      const loggedinUser = await getLoggedInUser();
-  
-      const newQuizSet = {
-        id: data.id,
-        title: data.title,
-        instructor_id: loggedinUser?.id, // Set instructor_id from logged-in user
-      };
-  
-      const quizSet = await createQuizSet(newQuizSet);
-      return quizSet;
-    } catch (error) {
-      console.error("Quiz set creation failed:", error);
-      throw new Error("Failed to create quiz set.");
-    }
+  try {
+    const loggedinUser = await getLoggedInUser();
+
+    const newQuizSet = {
+      id: data.id,
+      title: data.title,
+      instructor_id: loggedinUser?.id, // Set instructor_id from logged-in user
+    };
+
+    const quizSet = await createQuizSet(newQuizSet);
+    return quizSet;
+  } catch (error) {
+    console.error("Quiz set creation failed:", error);
+    throw new Error("Failed to create quiz set.");
   }
+}
 
 
-  
-  export async function deleteQuizsetById(quizsetId) {
-    try {
-      const res = await deleteQuizset(quizsetId);
-      return res;
-    } catch (err) {
-      throw new Error(err);
-    }
+
+export async function deleteQuizsetById(quizsetId) {
+  try {
+    const res = await deleteQuizset(quizsetId);
+    return res;
+  } catch (err) {
+    throw new Error(err);
   }
-  
- 
+}
+
+
 
 export async function createQuiz(data, quizSetId) {
   try {
@@ -106,4 +110,41 @@ export async function changeQuizPublishState(quizSetId) {
 }
 
 
-  
+
+export async function getQuizsets() {
+  try {
+      const loggedinUser = await getLoggedInUser();
+      const res = await getCourseQuizsets( loggedinUser?.id);
+      return res;
+  } catch (err) {
+      throw new Error(err);
+  }
+}
+
+
+export async function updateQuizsetId(courseId, quizsetId) {
+  try {
+    const res = await updateCourseQuizsetId(courseId, quizsetId);
+    return res;
+  } catch (err) {
+    console.error("Error in updateQuizsetId:", err);
+    throw new Error("Failed to update course quizset ID.");
+  }
+}
+
+export async function getCourseData(courseId) {
+  try {
+    const res = await getCourseDetails(courseId);
+    return res;
+  } catch (err) {
+    console.error("Error in get course:", err); 
+    throw new Error("Failed to get course ");
+  }
+}
+
+
+
+
+
+
+

@@ -78,8 +78,6 @@ export async function createQuizSet(quizSetData) {
 }
 
 
-
-
 export async function updateQSTitles(quizsetId, dataToUpdate) {
     try {
         const db = await createConnection();
@@ -242,3 +240,67 @@ export async function updateQSPublishState(quizsetId) {
     throw new Error("Database update failed");
   }
 }
+
+
+export async function getCourseQuizsets( loggedinUser) {
+  try {
+      const db = await createConnection();
+      const query = `
+          SELECT 
+              qz.id AS quizset_id,
+              qz.title AS quizset_title
+          FROM 
+              quizsets qz 
+          WHERE 
+              qz.instructor_id = ?;
+      `;
+
+      const [quizsets] = await db.execute(query, [loggedinUser]);
+
+      if (!quizsets || quizsets.length === 0) {
+          console.error("No quizsets found for this course", quizsets);
+          return [];
+      }
+
+      // Transform the quizset data
+      const transformedQuizsets = quizsets.map(quizset => ({
+          course_id: quizset.course_id,
+          course_title: quizset.course_title,
+          quizset_id: quizset.quizset_id,
+          quizset_title: quizset.quizset_title
+      }));
+
+      return transformedQuizsets;
+  } catch (error) {
+      console.error("Error fetching quizsets:", error);
+      throw new Error("Failed to fetch quizsets for the course.");
+  }
+}
+
+
+export async function updateCourseQuizsetId(courseId, quizsetId) {
+  try {
+    const db = await createConnection();
+
+    const query = `
+      UPDATE courses
+      SET quizset_id = ?
+      WHERE id = ?
+    `;
+
+    const [result] = await db.execute(query, [quizsetId, courseId]);
+
+    // ✅ Return only a safe, plain object
+    return {
+      success: result.affectedRows > 0,
+      affectedRows: result.affectedRows,
+    };
+  } catch (error) {
+    console.error("Error updating course quizset_id:", error);
+    throw new Error("Failed to update course quizset_id.");
+  }
+}
+
+
+
+
