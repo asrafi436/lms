@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { BookOpen } from "lucide-react";
 import Image from "next/image";
 
-const EnrolledCourseCard = ({ enrollment }) => {
+const EnrolledCourseCard = async ({ enrollment }) => {
     // Destructure enrollment and course data
     const {
         course_title,
@@ -17,6 +17,11 @@ const EnrolledCourseCard = ({ enrollment }) => {
 
     // Assuming module data in course_modules (stringified JSON) and parsing it
     const modules = JSON?.parse(course_modules);
+
+    console.log(enrollment)
+
+    
+
     
     // Get total modules and completed modules (hardcoded for now, adjust as needed)
     const totalModules = modules?.length;

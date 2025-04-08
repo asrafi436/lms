@@ -3,12 +3,15 @@
 import { createConnection } from "@/lib/db";
 
 
-export async function getQuizSets() {
+
+export async function getQuizSets(userID) {
+  
+
     try {
       const db = await createConnection();
-      const query = `SELECT * FROM quizsets`; // Removed the LIMIT clause to fetch all quiz sets
+      const query = `SELECT * FROM quizsets where instructor_id = ?`; // Removed the LIMIT clause to fetch all quiz sets
   
-      const [quizsets] = await db.execute(query); // Extract rows (actual data)
+      const [quizsets] = await db.execute(query, [userID]); // Extract rows (actual data)
   
       if (!quizsets || quizsets.length === 0) {
         console.error("No quiz sets found", quizsets);

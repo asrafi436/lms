@@ -59,7 +59,7 @@ export const Navbar = () => {
               </span>
             </div>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56 mt-4">
+          <DropdownMenuContent align="end" className="w-56 mt-4 bg-white">
             <DropdownMenuItem className="cursor-pointer">
               <Link href="/account">Profile</Link>
             </DropdownMenuItem>

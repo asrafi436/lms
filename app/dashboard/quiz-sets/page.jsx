@@ -10,6 +10,7 @@ const QuizSets = () => {
 
   useEffect(() => {
     const fetchData = async () => {
+      
       const data = await getCombinedQuizsets();
       setQuizsets(data);
     };

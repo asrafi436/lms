@@ -1,5 +1,8 @@
 "use server";
 
+import { auth } from "@/auth";
+import { getUserByEmail } from "@/queries/users"; // example path
+
 import { getQuizSets } from "@/queries/quizset-modelq";
 import { getQuizsetQuizzes } from "@/queries/quizsetQuizs";
 import { getQuizzes } from "@/queries/quizzes-modelq"; 
@@ -7,7 +10,22 @@ import { getQuizzes } from "@/queries/quizzes-modelq";
 // This combines quiz sets with quizset_quizzes table (just quiz IDs in each set)
 export async function getCombinedQuizsets() {
   try {
-    const quizSets = await getQuizSets();
+    const session = await auth();
+
+  // Redirect if not logged in
+  if (!session?.user) {
+    redirect("/login");
+  }
+
+  // Fetch full user from DB by email
+  const loggedInUser = await getUserByEmail(session.user.email);
+
+  if (!loggedInUser) {
+    console.error("User not found in MySQL");
+    redirect("/login");
+  }
+
+    const quizSets = await getQuizSets(loggedInUser?.id);
     const quizsetQuizzes = await getQuizsetQuizzes();
 
     const combinedData = quizSets.map((quizset) => {
