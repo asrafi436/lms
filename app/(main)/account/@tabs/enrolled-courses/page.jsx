@@ -4,6 +4,7 @@ import { auth } from '@/auth';
 import { getEnrolledCourses } from '@/queries/enrollments';
 import EnrolledCourseCard from "../../component/enrolled-coursecard";
 import { getUserByEmail } from '@/queries/users';
+import Link from "next/link";
 
 const EnrolledCoursesPage = async () => {
     // Get the session server-side
@@ -34,9 +35,12 @@ const EnrolledCoursesPage = async () => {
         <div className="grid sm:grid-cols-2 gap-6">
             {enrolledCourses.length > 0 ? (
                 enrolledCourses.map((enrollment) => (
-                    <EnrolledCourseCard
-					key={enrollment?.id} enrollment={enrollment}
-                    />
+                    <Link
+ 					key={enrollment?.id}
+ 					href={`/courses/${enrollment.course_id.toString()}/lesson`}
+ 					> 
+ 					<EnrolledCourseCard key={enrollment?.id} enrollment={enrollment}  />
+ 					</Link>
                 ))
             ) : (
                 <p>No enrolled courses found.</p>

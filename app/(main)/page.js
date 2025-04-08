@@ -36,8 +36,8 @@ const HomePage = () => {
         setCourses(course_response.courses)
         setCategories(category_response.categories)
 
-        console.log('Data fetched', course_response)
-        console.log('Data fetched', category_response)
+        // console.log('Data fetched', course_response)
+        // console.log('Data fetched', category_response)
 
       } catch (error) {
         console.error('Error fetching data', error)

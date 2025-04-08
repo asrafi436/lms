@@ -2,6 +2,7 @@ import React from 'react';
 import { Badge } from "@/components/ui/badge";
 import { BookOpen } from "lucide-react";
 import Image from "next/image";
+import { CourseProgress } from '@/components/course-progress';
 
 const EnrolledCourseCard = async ({ enrollment }) => {
     // Destructure enrollment and course data
@@ -18,11 +19,11 @@ const EnrolledCourseCard = async ({ enrollment }) => {
     // Assuming module data in course_modules (stringified JSON) and parsing it
     const modules = JSON?.parse(course_modules);
 
-    console.log(enrollment)
+    // console.log(enrollment)
 
-    
 
-    
+
+
     // Get total modules and completed modules (hardcoded for now, adjust as needed)
     const totalModules = modules?.length;
     const completedModules = 5; // Hardcoded for now, replace with actual data (e.g. from report)
@@ -99,6 +100,11 @@ const EnrolledCourseCard = async ({ enrollment }) => {
                         {totalMarks}
                     </span>
                 </div>
+                <CourseProgress
+                    size="sm"
+                    value={80}
+                    variant={110 === 100 ? "success" : ""}
+                />
             </div>
         </div>
     );

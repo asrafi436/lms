@@ -1,12 +1,58 @@
+"use client"
+
+import { useEffect, useState } from 'react';
 import React from 'react';
 import { buttonVariants } from "@/components/ui/button"
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import EnrollCourse from '@/components/enroll-course';
+import { useSession } from "next-auth/react";
+
 
 
 const CourseDetailsIntro = ({ course }) => {
+
+    const [hasEnrollment, setHasEnrollment] = useState(false);
+
+    const { data: session, status } = useSession();
+
+    // console.log("User is logged in:", session?.user.email);
+    const student_email = session?.user.email
+
+    useEffect(() => {
+        const checkEnrollment = async () => {
+            if (!student_email || !course?.course_id) return;
+
+            try {
+                const response = await fetch('/api/studentWiseEnrollments');
+                const data = await response.json();
+
+                const isEnrolled =
+                    Array.isArray(data.enrollments) &&
+                    data.enrollments.some(
+                        (enrollment) =>
+                            enrollment.student_email === student_email &&
+                            enrollment.course_id === course.course_id
+                    );
+
+                setHasEnrollment(isEnrolled);
+            } catch (error) {
+                console.error("Error checking enrollment:", error);
+            }
+        };
+
+        checkEnrollment();
+    }, [student_email, course?.course_id]);
+
+    // console.log("Has enrollment:", hasEnrollment);
+
+
+
+
+
+
+
     return (
         <div className="overflow-x-hidden  grainy mx-0 md:mx-auto px-5">
             <section className="pt-12  sm:pt-16">
@@ -23,8 +69,24 @@ const CourseDetailsIntro = ({ course }) => {
                                 </span>
                             </p>
 
+
+
                             <div className="mt-6 flex items-center justify-center flex-wrap gap-3">
-                                <EnrollCourse courseId={course?.course_id}  />
+
+                                {
+                                    hasEnrollment ? (
+                                        <Link href={`/courses/${course?.course_id}/lesson`} className={cn(buttonVariants({ size: "lg" }))}>
+                                            Access Course
+                                        </Link>
+                                    ) : (
+                                        <EnrollCourse courseId={course?.course_id} />
+                                    )
+                                }
+
+
+                                {/* <EnrollCourse courseId={course?.course_id} /> */}
+
+
                                 <Link href="" className={cn(buttonVariants({ variant: "outline", size: "lg" }))}>
                                     See Intro
                                 </Link>
@@ -33,6 +95,9 @@ const CourseDetailsIntro = ({ course }) => {
                                     Price : ${course?.course_price}
                                 </Link>
                             </div>
+
+
+
                         </div>
                     </div>
 

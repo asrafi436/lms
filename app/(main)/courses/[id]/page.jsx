@@ -5,6 +5,8 @@ import CourseDetailsIntro from "./_components/CourseDetailsIntro";
 import CourseDetails from "./_components/CourseDetails";
 import Testimonials from "./_components/Testimonials";
 import RelatedCourses from "./_components/RelatedCourses";
+import { SessionProvider } from "next-auth/react"
+
 
 const SingleCoursePage = () => {
     const { id } = useParams();
@@ -51,7 +53,12 @@ const SingleCoursePage = () => {
 
     return (
         <>
+            <SessionProvider>
             <CourseDetailsIntro  course={course} />
+            </SessionProvider>
+
+
+            
             <CourseDetails course={course} />
 
             <Testimonials testimonials={course.course_testimonials} />
