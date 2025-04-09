@@ -28,7 +28,8 @@ export const getModulesWithLessonsByCourseId = async (courseId) => {
               l.video_url AS video_url,
               l.published AS published,
               l.order AS lesson_order,
-              l.access as lesson_access
+              l.access as lesson_access,
+              l.module_id as module_id
             FROM modules m
             LEFT JOIN lessons l ON l.module_id = m.id
             WHERE m.course_id = ?
@@ -61,6 +62,7 @@ export const getModulesWithLessonsByCourseId = async (courseId) => {
 
             // Add the lesson to the current module's lessons array
             currentModule.lessons.push({
+                module_id: row.module_id,
                 lesson_id: row.lesson_id,
                 lesson_title: row.lesson_title,
                 lesson_description: row.lesson_description,

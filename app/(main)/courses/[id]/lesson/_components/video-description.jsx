@@ -26,7 +26,7 @@ const quizes = [
 	},
 ];
 
-function VideoDescription() {
+function VideoDescription({description}) {
 	return (
 		<div className="mt-4">
 			<Tabs defaultValue="details">
@@ -40,8 +40,7 @@ function VideoDescription() {
 				</TabsList>
 				<div className="pt-3">
 					<TabsContent value="details">
-						<div>render markdown / quill editor preview</div>
-						<div>render attachment</div>
+					{description}
 					</TabsContent>
 					<TabsContent value="quiz">
 						<p className="mb-4">Quiz notes</p>
