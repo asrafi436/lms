@@ -1,5 +1,5 @@
-"use client";
-import { useState } from "react";
+// "use client";
+// import { useState } from "react";
 import { CourseProgress } from "@/components/course-progress";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
@@ -13,10 +13,11 @@ import { DownloadCertificate } from "./download-certificate";
 import { GiveReview } from "./give-review";
 import { SidebarModules } from "./sidebar-modules";
 
-export const CourseSidebar = () => {
-  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+export const CourseSidebar = ({courseId, module}) => {
+  // const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const isActive = true;
   const isCompleted = true;
+
   return (
     <>
       <div className="h-full border-r flex flex-col overflow-y-auto shadow-sm">
@@ -30,7 +31,7 @@ export const CourseSidebar = () => {
           }
         </div>
 
-        <SidebarModules/>
+        <SidebarModules courseId={courseId} module={module}/>
 
 
 
