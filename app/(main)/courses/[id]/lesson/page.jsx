@@ -7,6 +7,22 @@ import { LessonVideo } from "./_components/lesson-video";
 
 const Course = async  ({ params: {id}, searchParams: { lessonId,moduleId} }) => {
 
+	if (!lessonId) {
+		return (
+			<div className="max-w-4xl mx-auto p-6 rounded-2xl bg-gradient-to-r from-blue-50 to-blue-100 shadow-md text-center">
+			<h2 className="text-4xl font-extrabold text-blue-700 mb-4 animate__animated animate__fadeIn animate__delay-1s">
+			  Welcome to Your Learning Journey 🚀
+			</h2>
+			<p className="text-2xl text-gray-700 mb-6 animate__animated animate__fadeIn animate__delay-2s">
+			  No lesson selected yet. Choose a lesson to begin your progress!
+			</p>
+			<p className="text-xl text-gray-600 italic animate__animated animate__fadeIn animate__delay-3s">
+			  "The expert in anything was once a beginner. Start now, keep going, and don't stop growing."
+			</p>
+		  </div>
+		);
+	  }
+
 	const lesson = await getLessonByLessonId(lessonId);
 	console.log(lesson);
 
