@@ -13,26 +13,27 @@ import { DownloadCertificate } from "./download-certificate";
 import { GiveReview } from "./give-review";
 import { SidebarModules } from "./sidebar-modules";
 
-export const CourseSidebar = ({courseId, module, userId, course}) => {
+export const CourseSidebar = ({courseId, module, userId, course, reports}) => {
   // const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const isActive = true;
   const isCompleted = true;
+  const totalPogress= reports.course_progress;
 
 
   return (
     <>
       <div className="h-full border-r flex flex-col overflow-y-auto shadow-sm">
         <div className="p-8 flex flex-col border-b">
-          <h1 className="font-semibold text-2xl">{course.title}</h1>
+          <h1 className="font-semibold text-2xl">{course?.title}</h1>
           {/* Check purchase */}
           {
-            // <div className="mt-10">
-            //   <CourseProgress variant="success" value={80} />
-            // </div>
+            <div className="mt-10">
+              <CourseProgress variant="success" value={totalPogress} />
+            </div>
           }
         </div>
 
-        <SidebarModules courseId={courseId} module={module} userId={userId}/>
+        <SidebarModules courseId={courseId} module={module} userId={userId} reports={reports}/>
 
 
 
@@ -40,7 +41,7 @@ export const CourseSidebar = ({courseId, module, userId, course}) => {
 
         <div className="w-full px-6">
           <GiveReview />
-          <DownloadCertificate />
+          <DownloadCertificate  courseId={courseId}  userId={userId} reports={reports}/>
         </div>
       </div>
 

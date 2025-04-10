@@ -1,3 +1,4 @@
+// CourseProgress Component
 import { cn } from "@/lib/utils";
 import { Progress } from "./ui/progress";
 
@@ -11,17 +12,17 @@ const sizeByVariant = {
   sm: "text-xs",
 };
 
-export const CourseProgress = ({ value, variant, size }) => {
+export const CourseProgress = ({ value, variant = "default", size = "default" }) => {
   return (
     <div>
       <Progress
         value={value}
         variant={variant}
-        className={cn("h-2", !variant && "text-sky-700")}
+        className={cn("h-2", !variant && "text-sky-700 ")}
       />
       <p
         className={cn(
-          "font-medium mt-2 text-sky-700",
+          "font-medium mt-2",
           colorByVariant[variant || "default"],
           sizeByVariant[size || "default"]
         )}
