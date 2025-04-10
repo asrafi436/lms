@@ -1,28 +1,28 @@
-// 'use server';
-
-// import { createConnection } from "@/lib/db";
+"use server";
 
 
-// export const getUserReport = async (userId, courseId) => {
-//     if (!userId || !courseId || typeof userId !== "string" || typeof courseId !== "string") {
-//         throw new Error("Invalid user ID or course ID provided");
-//     }
+import { createConnection } from "@/lib/db";
 
-//     let connection;
-//     try {
-//         connection = await createConnection();
-//         const [rows] = await connection.execute(
-//             `SELECT * FROM reports 
-//              WHERE student_id = ? 
-//                AND course_id = ?`,
-//             [userId, courseId]
-//         );
+export async function updateCourseProgress({ courseId, studentId, progress }) {
+  try {
+    if (!courseId || !studentId) {
+      throw new Error("Missing required parameters");
+    }
 
-//         return rows.length ? rows : [];
-//     } catch (error) {
-//         console.error("Error fetching reports for user:", error);
-//         throw new Error("Database query failed");
-//     } finally {
-//         if (connection) await connection.end();
-//     }
-// };
+    const db = await createConnection();
+
+    const query = `
+      UPDATE reports 
+      SET course_progress = ? 
+      WHERE course_id = ? AND student_id = ?
+    `;
+
+    const [result] = await db.execute(query, [progress, courseId, studentId]);
+
+    return result.affectedRows > 0;
+  } catch (error) {
+    console.error("Failed to update course progress:", error);
+    throw new Error("Could not update course progress.");
+  }
+}
+

@@ -3,8 +3,10 @@ import { Badge } from "@/components/ui/badge";
 import { BookOpen } from "lucide-react";
 import Image from "next/image";
 import { CourseProgress } from '@/components/course-progress';
-import { courseLessonCount } from "@/queries/lessons"; 
-import { countStudentLessonsProgress } from "@/queries/lessonProgress"; 
+import { courseLessonCount } from "@/queries/lessons";
+import { countStudentLessonsProgress } from "@/queries/lessonProgress";
+import { updateCourseProgress } from "@/queries/reports";
+
 
 const EnrolledCourseCard = async ({ enrollment, userId }) => {
     // Destructure enrollment and course data
@@ -21,11 +23,17 @@ const EnrolledCourseCard = async ({ enrollment, userId }) => {
 
     // Assuming module data in course_modules (stringified JSON) and parsing it
     const modules = JSON?.parse(course_modules);
-    console.log("enrollment user: ",userId)
+    console.log("enrollment user: ", userId)
 
-    const lessonCount = await courseLessonCount( course_id);
-    const lessonCompletedCount = await countStudentLessonsProgress(  userId.id, course_id);
+    const lessonCount = await courseLessonCount(course_id);
+    const lessonCompletedCount = await countStudentLessonsProgress(userId.id, course_id);
     const progressPercentage = Math.floor((lessonCompletedCount / lessonCount?.total_lessons) * 100);
+
+    await updateCourseProgress({
+        courseId: course_id,
+        studentId: userId.id,
+        progress: progressPercentage
+    });
 
 
 
@@ -97,7 +105,7 @@ const EnrolledCourseCard = async ({ enrollment, userId }) => {
                 <CourseProgress
                     size="sm"
                     value={progressPercentage}
-                    variant={110 === 100 ? "success" : ""}
+                    variant={progressPercentage === 100 ? "success" : ""}
                 />
             </div>
         </div>
