@@ -5,6 +5,8 @@ import {
   updateLessonTitle, createLesson, updateLessonOrder, updateLessonDescription,
   updateLessonAccess, updateLessonVideoUrlAndDuration, getLessonByLessonId, changeLessonPublishState, deleteLessons
 } from "@/queries/lessons";
+import { createLessonProgress, checkLessonProgressExists } from "@/queries/lessonProgress";
+
 
 // Update the title of a lesson
 
@@ -129,5 +131,30 @@ export async function deleteLesson(lessonId) {
   }
 }
 
+
+
+export async function markLessonComplete({ userId, lessonId, courseId }) {
+  if (!userId || !lessonId || !courseId) {
+    throw new Error("Missing required data");
+  }
+
+  try {
+    const result = await createLessonProgress({
+      user_id: userId,
+      lesson_id: lessonId,
+      course_id: courseId
+    });
+
+    return result;
+  } catch (error) {
+    console.error("Failed to mark lesson complete:", error);
+    throw error;
+  }
+}
+
+
+export async function checkLessonProgressExist(userId, id, lessonId) {
+  return await checkLessonProgressExists({ userId, id, lessonId });
+}
 
 

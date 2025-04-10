@@ -13,7 +13,7 @@ import { DownloadCertificate } from "./download-certificate";
 import { GiveReview } from "./give-review";
 import { SidebarModules } from "./sidebar-modules";
 
-export const CourseSidebar = ({courseId, module}) => {
+export const CourseSidebar = ({courseId, module, userId}) => {
   // const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const isActive = true;
   const isCompleted = true;
@@ -32,7 +32,7 @@ export const CourseSidebar = ({courseId, module}) => {
           }
         </div>
 
-        <SidebarModules courseId={courseId} module={module}/>
+        <SidebarModules courseId={courseId} module={module} userId={userId}/>
 
 
 

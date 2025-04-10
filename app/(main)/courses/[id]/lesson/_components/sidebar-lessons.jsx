@@ -1,7 +1,8 @@
 import { SidebarLessonItem } from "./sidebar-lesson-items";
 import { AccordionContent } from "@/components/ui/accordion";
 
-export const SidebarLessons = ({courseId, lessons }) => {
+export const SidebarLessons = ({courseId, lessons,userId }) => {
+  
   return (
     <AccordionContent>
       <div className="flex flex-col w-full gap-3">
@@ -13,6 +14,7 @@ export const SidebarLessons = ({courseId, lessons }) => {
               lesson={lesson}
               isActive={lesson.published === 0} 
               courseId={courseId} // Pass the courseId prop to SidebarLessonItem 
+              userId={userId}
             />
           ))
         ) : (

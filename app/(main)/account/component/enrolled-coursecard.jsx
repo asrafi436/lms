@@ -7,6 +7,7 @@ import { CourseProgress } from '@/components/course-progress';
 const EnrolledCourseCard = async ({ enrollment }) => {
     // Destructure enrollment and course data
     const {
+        course_id,
         course_title,
         course_description,
         course_thumbnail,
@@ -19,7 +20,10 @@ const EnrolledCourseCard = async ({ enrollment }) => {
     // Assuming module data in course_modules (stringified JSON) and parsing it
     const modules = JSON?.parse(course_modules);
 
-    // console.log(enrollment)
+    // console.log("enrollment: ",enrollment)
+
+
+
 
 
 

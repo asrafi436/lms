@@ -5,8 +5,13 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useState, useEffect } from 'react';
 
-export const SidebarLessonItem = ({ lesson, isActive, courseId }) => {
+
+
+
+export const SidebarLessonItem = ({ lesson, isActive, courseId, userId}) => {
   const [state, setState] = useState(null);
+
+  
 
   const lessonId = lesson.lesson_id;
 
@@ -52,7 +57,7 @@ export const SidebarLessonItem = ({ lesson, isActive, courseId }) => {
       href={
         isPrivate(lesson)
           ? "#"
-          : `/courses/${courseId}/lesson?lessonId=${lesson.lesson_id}&moduleId=${lesson.module_id}`
+          : `/courses/${courseId}/lesson?lessonId=${lesson.lesson_id}&moduleId=${lesson.module_id}&userId=${userId}`
       }
       className={cn(
         "flex items-center gap-x-2 text-emerald-800 text-sm font-[500] transition-all hover:text-emerald-500",
@@ -63,7 +68,7 @@ export const SidebarLessonItem = ({ lesson, isActive, courseId }) => {
     >
       <div className="flex items-center gap-x-2">
         {lessonIcon()}
-        {lesson.lesson_title}
+        {lesson?.lesson_title}
       </div>
     </Link>
   );

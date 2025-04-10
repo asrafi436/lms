@@ -10,7 +10,7 @@ import { SidebarLessons } from "./sidebar-lessons";
 import { useEffect, useState } from 'react';
 
 
-export const SidebarModules = ({ courseId, module }) => {
+export const SidebarModules = ({ courseId, module, userId }) => {
 
   const [loadedModule, setLoadedModule] = useState(null);
 
@@ -55,8 +55,8 @@ export const SidebarModules = ({ courseId, module }) => {
 
             return (
               <AccordionItem key={moduleItem.module_id} className="border-0" value={`item-${index}`}>
-                <AccordionTrigger>{moduleItem.module_title} {moduleItem.module_status}</AccordionTrigger>
-                <SidebarLessons lessons={moduleItem.lessons} courseId={courseId} />
+                <AccordionTrigger>{moduleItem.module_title}</AccordionTrigger>
+                <SidebarLessons lessons={moduleItem.lessons} courseId={courseId} userId={userId} />
               </AccordionItem>
             );
           })}
