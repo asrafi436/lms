@@ -305,5 +305,48 @@ export async function deleteLessons(lessonId) {
 }
 
 
+export async function courseLessonCount(courseId) {
+  try {
+    if (!courseId) {
+      throw new Error("Course ID is required");
+    }
+
+    const db = await createConnection();
+
+    const query = `
+      SELECT 
+        c.id AS course_id,
+        c.title AS course_title,
+        COUNT(l.id) AS total_lessons
+      FROM 
+        courses c
+      JOIN 
+        modules m ON c.id = m.course_id
+      JOIN 
+        lessons l ON m.id = l.module_id
+      WHERE 
+        c.id = ?
+      GROUP BY 
+        c.id, c.title
+      ORDER BY 
+        total_lessons DESC
+    `;
+
+    const [rows] = await db.execute(query, [courseId]);
+
+    if (!rows || rows.length === 0) {
+      return null; // No lessons found for the given course ID
+    }
+
+    return rows[0]; // Return the count of lessons for the specific course
+  } catch (error) {
+    console.error("Error fetching lesson count for course:", error);
+    throw new Error("Failed to fetch lesson count.");
+  }
+}
+
+
+
+
 
 

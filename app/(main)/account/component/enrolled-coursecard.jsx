@@ -3,8 +3,10 @@ import { Badge } from "@/components/ui/badge";
 import { BookOpen } from "lucide-react";
 import Image from "next/image";
 import { CourseProgress } from '@/components/course-progress';
+import { courseLessonCount } from "@/queries/lessons"; 
+import { countStudentLessonsProgress } from "@/queries/lessonProgress"; 
 
-const EnrolledCourseCard = async ({ enrollment }) => {
+const EnrolledCourseCard = async ({ enrollment, userId }) => {
     // Destructure enrollment and course data
     const {
         course_id,
@@ -19,27 +21,22 @@ const EnrolledCourseCard = async ({ enrollment }) => {
 
     // Assuming module data in course_modules (stringified JSON) and parsing it
     const modules = JSON?.parse(course_modules);
+    console.log("enrollment user: ",userId)
 
-    // console.log("enrollment: ",enrollment)
-
-
-
-
-
+    const lessonCount = await courseLessonCount( course_id);
+    const lessonCompletedCount = await countStudentLessonsProgress(  userId.id, course_id);
+    const progressPercentage = Math.floor((lessonCompletedCount / lessonCount?.total_lessons) * 100);
 
 
-    // Get total modules and completed modules (hardcoded for now, adjust as needed)
-    const totalModules = modules?.length;
-    const completedModules = 5; // Hardcoded for now, replace with actual data (e.g. from report)
 
     // Get total quizzes (assuming quiz data is available in the course_testimonials)
-    const totalQuizzes = 10; // Hardcoded for now, replace with actual data from report
-    const quizzesTaken = 10; // Hardcoded, replace with actual data
+    // const totalQuizzes = 10; 
+    // const quizzesTaken = 10; 
 
-    // Calculate marks (just an example, you should replace with real data from quizzes)
-    const marksFromQuizzes = quizzesTaken * 5; // Assuming each quiz has 5 marks
-    const otherMarks = 50; // Hardcoded, replace with actual data
-    const totalMarks = marksFromQuizzes + otherMarks;
+    // // Calculate marks (just an example, you should replace with real data from quizzes)
+    // const marksFromQuizzes = quizzesTaken * 5; // Assuming each quiz has 5 marks
+    // const otherMarks = 50; 
+    // const totalMarks = marksFromQuizzes + otherMarks;
 
     return (
         <div className="group hover:shadow-sm transition overflow-hidden border rounded-lg p-3 h-full">
@@ -59,18 +56,11 @@ const EnrolledCourseCard = async ({ enrollment }) => {
                 <div className="my-3 flex items-center gap-x-2 text-sm md:text-xs">
                     <div className="flex items-center gap-x-1 text-slate-500">
                         <BookOpen className="w-4" />
-                        <span>{totalModules} Chapters</span>
+                        <span>Lesson Completed {lessonCompletedCount}/{lessonCount?.total_lessons}</span>
                     </div>
                 </div>
-                <div className="border-b pb-2 mb-2">
-                    <div className="flex items-center justify-between">
-                        <span className="text-md md:text-sm font-medium text-slate-700">
-                            Total Modules: {totalModules}
-                        </span>
-                        <div className="text-md md:text-sm font-medium text-slate-700">
-                            Completed Modules <Badge variant="success">{completedModules}</Badge>
-                        </div>
-                    </div>
+                {/* <div className="border-b pb-2 mb-2">
+                    
                     <div className="flex items-center justify-between mt-2">
                         <span className="text-md md:text-sm font-medium text-slate-700">
                             Total Quizzes: {totalQuizzes}
@@ -103,10 +93,10 @@ const EnrolledCourseCard = async ({ enrollment }) => {
                     <span className="text-md md:text-sm font-medium text-slate-700">
                         {totalMarks}
                     </span>
-                </div>
+                </div> */}
                 <CourseProgress
                     size="sm"
-                    value={80}
+                    value={progressPercentage}
                     variant={110 === 100 ? "success" : ""}
                 />
             </div>

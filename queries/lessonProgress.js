@@ -54,3 +54,29 @@ export async function checkLessonProgressExists({ userId, id, lessonId }) {
   }
 }
 
+
+export async function countStudentLessonsProgress(userId, course_id ) {
+  try {
+    if (!userId || !course_id) {
+      throw new Error("User ID and Course ID are required");
+    }
+
+    const db = await createConnection();
+
+    const query = `
+      SELECT COUNT(id) AS completed_lessons
+      FROM lesson_progress
+      WHERE user_id = ? AND course_id = ?
+    `;
+
+    const [rows] = await db.execute(query, [userId, course_id]);
+
+    return rows[0]?.completed_lessons || 0;
+  } catch (error) {
+    console.error(`Error counting completed lessons for user ${userId} in course ${course_id}:`, error);
+    throw new Error("Failed to count completed lessons.");
+  }
+}
+
+
+

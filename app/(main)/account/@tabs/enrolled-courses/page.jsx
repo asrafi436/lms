@@ -39,7 +39,7 @@ const EnrolledCoursesPage = async () => {
  					key={enrollment?.id}
  					href={`/courses/${enrollment.course_id.toString()}/lesson`}
  					> 
- 					<EnrolledCourseCard key={enrollment?.id} enrollment={enrollment}  />
+ 					<EnrolledCourseCard key={enrollment?.id} enrollment={enrollment} userId={loggedInUser} />
  					</Link>
                 ))
             ) : (

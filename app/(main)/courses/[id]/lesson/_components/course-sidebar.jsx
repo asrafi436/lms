@@ -13,7 +13,7 @@ import { DownloadCertificate } from "./download-certificate";
 import { GiveReview } from "./give-review";
 import { SidebarModules } from "./sidebar-modules";
 
-export const CourseSidebar = ({courseId, module, userId}) => {
+export const CourseSidebar = ({courseId, module, userId, course}) => {
   // const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const isActive = true;
   const isCompleted = true;
@@ -23,12 +23,12 @@ export const CourseSidebar = ({courseId, module, userId}) => {
     <>
       <div className="h-full border-r flex flex-col overflow-y-auto shadow-sm">
         <div className="p-8 flex flex-col border-b">
-          <h1 className="font-semibold">{courseId}</h1>
+          <h1 className="font-semibold text-2xl">{course.title}</h1>
           {/* Check purchase */}
           {
-            <div className="mt-10">
-              <CourseProgress variant="success" value={80} />
-            </div>
+            // <div className="mt-10">
+            //   <CourseProgress variant="success" value={80} />
+            // </div>
           }
         </div>
 
