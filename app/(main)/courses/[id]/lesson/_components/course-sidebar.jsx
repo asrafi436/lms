@@ -13,12 +13,15 @@ import { DownloadCertificate } from "./download-certificate";
 import { GiveReview } from "./give-review";
 import { SidebarModules } from "./sidebar-modules";
 import Quiz from "./quiz";
+import { getQuizByCourseID } from "@/queries/quizs"
 
-export const CourseSidebar = ({courseId, module, userId, course, reports}) => {
+export const CourseSidebar = async ({courseId, module, userId, course, reports}) => {
   // const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const isActive = true;
   const isCompleted = true;
   const totalPogress= reports.course_progress;
+  const quizDataByCourse = await getQuizByCourseID(courseId);
+
 
 
   return (
@@ -38,7 +41,7 @@ export const CourseSidebar = ({courseId, module, userId, course, reports}) => {
 
 
         <div className="w-full px-4 lg:px-14 pt-10 border-t">
-           <Quiz reports={reports}/>
+        <Quiz reports={reports} quizDataByCourse={quizDataByCourse} />
          </div>
 
 

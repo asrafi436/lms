@@ -1,112 +1,139 @@
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+"use client";
+import { useState } from "react";
 import { Dialog, DialogContent, DialogFooter, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, ArrowRight } from "lucide-react";
-import { useState } from "react";
 
-function QuizModal({ quizes }) {
-  const [open, setOpen] = useState(false);
-  const totalQuizes = quizes?.length;
+function QuizModal({ quizes, open, setOpen }) {
   const [quizIndex, setQuizIndex] = useState(0);
-  const lastQuizIndex = totalQuizes - 1;
-  const currentQuiz = quizes[quizIndex];
+  const [questionIndex, setQuestionIndex] = useState(0);
+  const [selectedAnswers, setSelectedAnswers] = useState({});
+  const [submitted, setSubmitted] = useState(false);
+  const [score, setScore] = useState(0);
 
-  const quizChangeHanlder = (type) => {
-    const nextQuizIndex = quizIndex + 1;
-    const prevQuizIndex = quizIndex - 1;
-    if (type === "next" && nextQuizIndex <= lastQuizIndex) {
-      return setQuizIndex((prev) => prev + 1);
-    }
-    if (type === "prev" && prevQuizIndex >= 0) {
+  const currentQuiz = quizes?.[quizIndex];
+  const totalQuestions = currentQuiz?.questions.length || 0;
+  const currentQuestion = currentQuiz?.questions?.[questionIndex];
+
+  const handleOptionChange = (optionId) => {
+    const key = `${quizIndex}-${questionIndex}`;
+    setSelectedAnswers({ ...selectedAnswers, [key]: optionId });
+  };
+
+  const handlePrev = () => {
+    if (questionIndex > 0) {
+      setQuestionIndex((prev) => prev - 1);
+    } else if (quizIndex > 0) {
+      const prevQuiz = quizes[quizIndex - 1];
       setQuizIndex((prev) => prev - 1);
+      setQuestionIndex(prevQuiz.questions.length - 1);
     }
   };
 
+  const handleNext = () => {
+    if (questionIndex < totalQuestions - 1) {
+      setQuestionIndex((prev) => prev + 1);
+    } else if (quizIndex < quizes.length - 1) {
+      setQuizIndex((prev) => prev + 1);
+      setQuestionIndex(0);
+    }
+  };
+
+  const handleSubmit = () => {
+    let correctCount = 0;
+
+    quizes.forEach((quiz, qIdx) => {
+      quiz.questions.forEach((question, quesIdx) => {
+        const key = `${qIdx}-${quesIdx}`;
+        const selectedId = selectedAnswers[key];
+        const correctOption = question.options.find((opt) => opt.isCorrect);
+
+        if (correctOption && correctOption.id === selectedId) {
+          correctCount += 1;
+        }
+      });
+    });
+
+    setScore(correctCount * 5); // 5 mark per correct
+    setSubmitted(true);
+  };
+
+  const selectedOption = selectedAnswers[`${quizIndex}-${questionIndex}`];
+
   return (
-    <>
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-[95%] block">
-          <DialogTitle className="sr-only">Quiz Details</DialogTitle>
-          <div className="pb-4 border-b border-border text-sm">
-            <span className="text-success inline-block mr-1">
-              {quizIndex + 1} / {totalQuizes}
-            </span>
-            Number
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogContent className="sm:max-w-[95%] block bg-white">
+        <DialogTitle className="sr-only">Quiz</DialogTitle>
+
+        {submitted ? (
+          <div className="text-center py-12">
+            <h2 className="text-2xl font-semibold mb-4">🎉 Your Score: {score}</h2>
+            <Button onClick={() => setOpen(false)}>Close</Button>
           </div>
-          <div className="py-4">
-            <h3 className="text-xl font-medium mb-10">
-              <svg
-                className="text-success inline"
-                strokeWidth="0"
-                viewBox="0 0 512 512"
-                height="1em"
-                width="1em"
-                xmlns="http://www.w3.org/2000/svg"
+        ) : (
+          <>
+            <div className="pb-4 border-b border-border text-sm">
+              <span className="text-success inline-block mr-1">
+                Quiz {quizIndex + 1} – Q{questionIndex + 1}/{totalQuestions}
+              </span>
+            </div>
+
+            <div className="py-4">
+              <h3 className="text-xl font-medium mb-6">{currentQuestion?.question}</h3>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-5 mb-6">
+              {currentQuestion?.options.map((option) => (
+                <div key={option.id}>
+                  <input
+                    className="peer hidden"
+                    type="radio"
+                    id={`option-${option.id}`}
+                    name={`question-${quizIndex}-${questionIndex}`}
+                    checked={selectedOption === option.id}
+                    onChange={() => handleOptionChange(option.id)}
+                  />
+                  <Label
+                    htmlFor={`option-${option.id}`}
+                    className="border border-border rounded px-2 py-3 block cursor-pointer 
+                                transition-all font-normal 
+                                  peer-checked:bg-green-100 peer-checked:border-green-500 peer-checked:text-green-700 
+                                          hover:bg-gray-50"
+                  >
+                    {option.label}
+                  </Label>
+                </div>
+              ))}
+            </div>
+
+            <DialogFooter className="flex flex-col gap-4 sm:flex-row sm:justify-between">
+              <Button
+                className="gap-2 rounded-3xl"
+                disabled={quizIndex === 0 && questionIndex === 0}
+                onClick={handlePrev}
               >
-                <path
-                  fill="currentColor"
-                  stroke="currentColor"
-                  d="M256 8C119.043 8 8 119.083 8 256c0 136.997 111.043 248 248 248s248-111.003 248-248C504 119.083 392.957 8 256 8zm0 448c-110.532 0-200-89.431-200-200 0-110.495 89.472-200 200-200 110.491 0 200 89.471 200 200 0 110.53-89.431 200-200 200zm107.244-255.2c0 67.052-72.421 68.084-72.421 92.863V300c0 6.627-5.373 12-12 12h-45.647c-6.627 0-12-5.373-12-12v-8.659c0-35.745 27.1-50.034 47.579-61.516 17.561-9.845 28.324-16.541 28.324-29.579 0-17.246-21.999-28.693-39.784-28.693-23.189 0-33.894 10.977-48.942 29.969-4.057 5.12-11.46 6.071-16.666 2.124l-27.824-21.098c-5.107-3.872-6.251-11.066-2.644-16.363C184.846 131.491 214.94 112 261.794 112c49.071 0 101.45 38.304 101.45 88.8zM298 368c0 23.159-18.841 42-42 42s-42-18.841-42-42 18.841-42 42-42 42 18.841 42 42z"
-                ></path>
-              </svg>{" What happens if the userId is not provided in the request parameters? "}
-              {currentQuiz?.question}
-            </h3>
-            <span className="text-[10px] block text-end">
-              <svg
-                stroke="currentColor"
-                fill="currentColor"
-                strokeWidth="0"
-                version="1.1"
-                viewBox="0 0 16 16"
-                className="text-success inline"
-                height="12"
-                width="12"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path d="M7 4.75c0-0.412 0.338-0.75 0.75-0.75h0.5c0.412 0 0.75 0.338 0.75 0.75v0.5c0 0.412-0.338 0.75-0.75 0.75h-0.5c-0.412 0-0.75-0.338-0.75-0.75v-0.5z"></path>
-                <path d="M10 12h-4v-1h1v-3h-1v-1h3v4h1z"></path>
-                <path d="M8 0c-4.418 0-8 3.582-8 8s3.582 8 8 8 8-3.582 8-8-3.582-8-8-8zM8 14.5c-3.59 0-6.5-2.91-6.5-6.5s2.91-6.5 6.5-6.5 6.5 2.91 6.5 6.5-2.91 6.5-6.5 6.5z"></path>
-              </svg>{" "}
-              A question can have multiple answers & there is no negative marking for incorrect selection.
-            </span>
-          </div>
-          <div className="grid md:grid-cols-2 gap-5 mb-6">
-            {currentQuiz?.options.map((option) => (
-              <div key={option.id}>
-                <input
-                  className="opacity-0 invisible absolute [&:checked_+_label]:bg-success/5"
-                  type="checkbox"
-                  id={`option-${option.id}`}
-                />
-                <Label
-                  className="border border-border rounded px-2 py-3 block cursor-pointer hover:bg-gray-50 transition-all font-normal"
-                  htmlFor={`option-${option.id}`}
+                <ArrowLeft /> Previous
+              </Button>
+
+              {quizIndex === quizes.length - 1 && questionIndex === totalQuestions - 1 ? (
+                <Button className="gap-2 rounded-3xl" onClick={handleSubmit}>
+                  Submit Quiz
+                </Button>
+              ) : (
+                <Button
+                  className="gap-2 rounded-3xl"
+                  onClick={handleNext}
+                  disabled={selectedOption === undefined}
                 >
-                  {option.label}
-                </Label>
-              </div>
-            ))}
-          </div>
-          <DialogFooter className="flex gap-4 justify-between w-full sm:justify-between">
-            <Button
-              className="gap-2 rounded-3xl"
-              disabled={quizIndex === 0}
-              onClick={() => quizChangeHanlder("prev")}
-            >
-              <ArrowLeft /> Previous Quiz
-            </Button>
-            <Button
-              className="gap-2 rounded-3xl"
-              disabled={quizIndex >= lastQuizIndex}
-              onClick={() => quizChangeHanlder("next")}
-            >
-              Next Quiz <ArrowRight />
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </>
+                  Next <ArrowRight />
+                </Button>
+              )}
+            </DialogFooter>
+          </>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 }
 
