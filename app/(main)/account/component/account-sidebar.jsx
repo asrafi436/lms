@@ -30,7 +30,7 @@ const AccountSidebar = async () => {
                         <div>
                             <div className="relative size-28 mx-auto">
                                 <Image
-                                    src={loggedInUser?.profile_picture || "/assets/images/profile.jpg"}
+                                    src={loggedInUser?.profile_picture || "/assets/images/two.png"}
                                     className="rounded-full shadow dark:shadow-gray-800 ring-4 ring-slate-50 dark:ring-slate-800"
                                     alt={`Image of: ${loggedInUser?.first_name}`}
                                     width={112}

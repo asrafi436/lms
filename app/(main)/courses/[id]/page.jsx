@@ -63,7 +63,7 @@ const SingleCoursePage = () => {
 
             <Testimonials testimonials={course.course_testimonials} />
 
-            <RelatedCourses />
+            {/* <RelatedCourses /> */}
         </>
     );
 };

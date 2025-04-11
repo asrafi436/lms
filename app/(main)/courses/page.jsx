@@ -45,27 +45,27 @@ const CoursesPage = () => {
       <div className="flex items-baseline justify-between  border-gray-200 border-b pb-6 flex-col gap-4 lg:flex-row">
         <SearchCourse />
         <div className="flex items-center justify-end gap-2 max-lg:w-full">
-          <SortCourse />
+          <SortCourse course={courses} category={categories} />
           {/* Filter Menus For Mobile */}
-          <FilterCourseMobile />
+          <FilterCourseMobile course={courses} category={categories} />
         </div>
       </div>
       {/* header ends */}
       {/* active filters */}
 
-      <ActiveFilters
+      {/* <ActiveFilters
         filter={{
           categories: ["development"],
           price: ["free"],
           sort: ""
         }}
-      />
+      /> */}
 
       <section className="pb-24 pt-6">
         <div className="grid grid-cols-1 gap-x-8 gap-y-10 lg:grid-cols-4">
           {/* Filters */}
           {/* these component can be re use for mobile also */}
-          <FilterCourse />
+          <FilterCourse course={courses} category={categories} />
           {/* Course grid */}
           <div className="lg:col-span-3 grid sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4">
             {courses

@@ -38,7 +38,7 @@ export const CourseSidebar = ({courseId, module, userId, course, reports}) => {
 
 
         <div className="w-full px-4 lg:px-14 pt-10 border-t">
-           <Quiz/>
+           <Quiz reports={reports}/>
          </div>
 
 
