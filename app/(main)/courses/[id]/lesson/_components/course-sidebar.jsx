@@ -12,6 +12,7 @@ import { ReviewModal } from "./review-modal";
 import { DownloadCertificate } from "./download-certificate";
 import { GiveReview } from "./give-review";
 import { SidebarModules } from "./sidebar-modules";
+import Quiz from "./quiz";
 
 export const CourseSidebar = ({courseId, module, userId, course, reports}) => {
   // const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
@@ -36,11 +37,15 @@ export const CourseSidebar = ({courseId, module, userId, course, reports}) => {
         <SidebarModules courseId={courseId} module={module} userId={userId} reports={reports}/>
 
 
+        <div className="w-full px-4 lg:px-14 pt-10 border-t">
+           <Quiz/>
+         </div>
 
 
 
-        <div className="w-full px-6">
-          <GiveReview />
+
+        <div className="w-full px-6 mb-10">
+          <GiveReview courseId={courseId}  loginid={userId} />
           <DownloadCertificate  courseId={courseId}  userId={userId} reports={reports}/>
         </div>
       </div>

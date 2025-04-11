@@ -3,6 +3,55 @@
 
 import { createConnection } from "@/lib/db";
 
+export async function getCourseList() {
+  try {
+    const db = await createConnection();
+
+    const query = `
+      SELECT 
+        c.id as course_id,
+        c.title as course_title,
+        c.description,
+        c.thumbnail as course_thumbnail,
+        c.price as course_price,
+        c.active,
+        c.subtitle,
+        c.learning,
+        c.created_on,
+        c.modified_on,
+        cat.id as category_id,
+        cat.thumbnail as category_thumbnail,
+        cat.title AS category_title,
+        u.first_name AS instructor_first_name,
+        u.last_name AS instructor_last_name
+      FROM courses c
+      LEFT JOIN categories cat ON c.category_id = cat.id
+      LEFT JOIN users u ON c.instructor_id = u.id
+    `;
+
+    const [courses] = await db.execute(query);
+
+    if (!courses || courses.length === 0) {
+      console.warn("No courses found");
+      return [];
+    }
+
+    // Optionally format instructor name
+    const formattedCourses = courses.map(course => ({
+      ...course,
+      instructor_name: course.instructor_first_name && course.instructor_last_name
+        ? `${course.instructor_first_name} ${course.instructor_last_name}`
+        : null
+    }));
+
+    return formattedCourses;
+  } catch (error) {
+    console.error("Error fetching course list:", error);
+    throw new Error("Failed to fetch course list.");
+  }
+}
+
+
 
 export async function getCategories() {
   try {

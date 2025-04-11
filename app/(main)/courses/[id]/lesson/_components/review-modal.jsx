@@ -1,20 +1,13 @@
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import {Form,FormControl,FormDescription,FormField,FormItem,FormLabel,FormMessage} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { createReview } from "@/app/action/review";
 
 const formSchema = z.object({
   rating: z.coerce
@@ -30,7 +23,7 @@ const formSchema = z.object({
   }),
 });
 
-export const ReviewModal = ({ open, setOpen }) => {
+export const ReviewModal = ({ open, setOpen, loginid, courseId }) => {
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -43,6 +36,7 @@ export const ReviewModal = ({ open, setOpen }) => {
 
   const onSubmit = async (values) => {
     try {
+      await createReview(values,loginid,courseId);
       toast.success("Review added");
       setOpen(false);
     } catch (error) {
