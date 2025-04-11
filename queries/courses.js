@@ -32,14 +32,19 @@ export async function getCourseDetails(courseId) {
 
     const db = await createConnection(); // Get the pooled connection
 
+    // 
+
     const query = `
       SELECT 
-        courses.*, 
-        categories.title AS category_title
-      FROM courses
-      LEFT JOIN categories ON courses.category_id = categories.id
-      WHERE courses.id = ?
-      LIMIT 1;
+    courses.*, 
+    categories.title AS category_title,
+    users.first_name AS instructor_first_name,
+    users.last_name AS instructor_last_name, users.designation as designation
+FROM courses
+LEFT JOIN categories ON courses.category_id = categories.id
+LEFT JOIN users ON users.id = courses.instructor_id
+WHERE courses.id = ?
+LIMIT 1;
     `;
 
     const values = [courseId];
